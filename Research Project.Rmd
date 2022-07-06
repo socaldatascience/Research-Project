@@ -7,9 +7,84 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 ```
 
 ## Part 1
+
+
+```{r}
+library(viridis)
+library(hrbrthemes)
+
+#sub dataframe of patients with CF
+cf <- filter(d, has_cf == 1)
+
+#contingency table of observed counts between CF and non-CF of lvls of sympt.
+con_tab <- d %>% 
+  select(has_cf, COVIDseverity)
+table(con_tab)
+
+#graph of contingency NOTE: graph is zoom in to show cf patient bars
+ggplot(con_tab) +
+  geom_bar(mapping = aes(x=has_cf, fill = COVIDseverity), 
+           position = 'dodge') +
+  coord_cartesian(ylim = c(0, 60000))
+
+```
+
+```{r wrap}
+#using face_wrap for con_tab
+ggplot(con_tab, aes(fill=COVIDseverity, x=has_cf)) + 
+    geom_bar(position="dodge") +
+    scale_fill_viridis(discrete = T, option = "E") +
+    ggtitle("Observed counts") +
+    facet_wrap(~has_cf) +
+    theme_ipsum() +
+    theme(legend.position="none") +
+    xlab("") + 
+  coord_cartesian(ylim = c(0, 60000))
+```
+
+```{r grid}
+#using facet_grid for con_table
+ggplot(con_tab) +
+  geom_bar(mapping = aes(x=has_cf, fill = COVIDseverity), position = 'dodge') +
+  facet_grid(has_cf~.) + 
+  coord_cartesian(ylim = c(0, 60000))
+```
+
+```{r morbidities}
+#table with severity, cf and comorbidities
+con_tab2 <- d %>%
+  select(has_cf, COVIDseverity, starts_with('comorb')) %>%
+  filter(has_cf == 0)
+
+#retrieve most prevalent diseases
+summary(con_tab2)
+```
+
+```{r sever0}
+severity0 <- con_tab2 %>%
+  filter(COVIDseverity == 0)
+
+summary(severity0)
+```
+
+```{r sever1}
+severity1 <- con_tab2 %>%
+  filter(COVIDseverity == 1)
+
+summary(severity1)
+```
+
+```{r sever2}
+severity2 <- con_tab2 %>%
+  filter(COVIDseverity == 2)
+
+summary(severity2)
+```
+
 
 ## Part 2
 
