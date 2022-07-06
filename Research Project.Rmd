@@ -9,7 +9,15 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
+<<<<<<< HEAD
 
+=======
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(scales)
+```
+>>>>>>> b05b752bf06ca6305982e887454b3706d5b359ce
 
 ## Part 1
 
@@ -125,6 +133,44 @@ ggplot(melted_sev_lvls, aes(x=morbidity, y = obs)) +
 
 ## Part 4
 
+```{r}
+#contingency table, compares non-cf covid severity with race
+non_cf %>% 
+  group_by(COVIDseverity, encountertype) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  knitr::kable()
+```
+
+```{r}
+#contingency table, compares cf covid severity with encountertype
+cf %>% 
+  group_by(COVIDseverity, encountertype) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  knitr::kable()
+```
+
+```{r}
+#contingency table, compares non-cf covid severity with race
+non_cf %>% 
+  group_by(COVIDseverity, race) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  knitr::kable()
+```
+
+```{r}
+#contingency table, compares covid severity between cf and non-cf
+con_tab %>% 
+  group_by(has_cf, COVIDseverity) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  knitr::kable()
+```
+
+
+
 ## Part 5
 ```{r}
 non_cf <- d %>%
@@ -208,7 +254,8 @@ non_cf %>%
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"), 
                     labels = c("Asymptomatic","Moderate","Severe"),
-                    name = "COVID Severity") 
+                    name = "COVID Severity") +
+  scale_y_continuous(labels = comma)
 ```
 ```{r}
 non_cf %>% 
@@ -219,6 +266,39 @@ non_cf %>%
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"), 
                     labels = c("Asymptomatic","Moderate","Severe"),
-                    name = "COVID Severity") 
+                    name = "COVID Severity") +
+  scale_y_continuous(labels = comma)
 ```
+```{r}
+d %>% 
+  ggplot(aes(x=encountertype, 
+             fill = has_cf)) +
+  geom_bar(position = "dodge") +
+  labs(x = "Type of Encounter", y = "Count") +
+  ggtitle("COVID Severity Among Children based on Type of Encounter") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_manual(values =c("#E69F00","#009E73"), 
+                    labels = c("Non CF","CF"), 
+                    name = "Cystic Fibrosis Diagnosis") +
+  coord_flip() +
+  scale_y_continuous(labels = comma)
+```
+```{r}
+table(d$ethnicity,d$has_cf)
+```
+```{r}
+table(d$race,d$COVIDseverity)
+```
+
+X AXIS 3 CATEGORIES Y AXIS 2 CATEGORIES
+```{r}
+table(d$ethnicity,d$encountertype)
+```
+
+
+
+
+
+
+
 
