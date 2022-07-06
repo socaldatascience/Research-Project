@@ -12,6 +12,7 @@ library(tidyverse)
 ```{r}
 library(tidyverse)
 library(ggplot2)
+library(scales)
 ```
 
 ## Part 1
@@ -232,7 +233,8 @@ non_cf %>%
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"), 
                     labels = c("Asymptomatic","Moderate","Severe"),
-                    name = "COVID Severity") 
+                    name = "COVID Severity") +
+  scale_y_continuous(labels = comma)
 ```
 ```{r}
 non_cf %>% 
@@ -243,6 +245,7 @@ non_cf %>%
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"), 
                     labels = c("Asymptomatic","Moderate","Severe"),
-                    name = "COVID Severity") 
+                    name = "COVID Severity") +
+  scale_y_continuous(labels = comma)
 ```
 
