@@ -47,6 +47,74 @@ non_cf %>%
  count()
 ```
 ```{r}
-non_cf 
+non_cf %>% 
+  select(COVIDseverity, ethnicity) %>% 
+  table()
+```
+```{r}
+non_cf %>% 
+  select(COVIDseverity, zip_code) %>% 
+  table()
+```
+```{r}
+non_cf %>% 
+  select(COVIDseverity, race) %>% 
+  table()
+```
+```{r}
+non_cf %>% 
+  select(COVIDseverity, encountertype) %>% 
+  table()
+```
+```{r}
+non_cf %>% 
+  ggplot(aes(x=COVIDseverity,
+             y=age_at_encounter, fill = COVIDseverity)) +
+  geom_boxplot() +
+  labs(x = "COVID Severity", 
+       y = "Age at Encounter", 
+       title = "COVID Severity among children without Cystic Fibrosis") +
+  scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"))
+```
+```{r}
+non_cf %>% 
+  ggplot(aes(x=COVIDseverity, fill = race)) +
+  geom_bar()
+```
+```{r}
+d %>% 
+  ggplot(aes(x=COVIDseverity,
+             y=age_at_encounter, 
+             fill = has_cf)) +
+  geom_boxplot() +
+  labs(x = "COVID Severity", y = "Age at Encounter") +
+  ggtitle("COVID Severity Among Children based on Age") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_manual(values =c("#E69F00","#009E73"), 
+                    labels = c("Non CF","CF"), 
+                    name = "Cystic Fibrosis Diagnosis") 
+```
+```{r}
+non_cf %>% 
+  ggplot(aes(x=race, fill = COVIDseverity)) +
+  geom_bar(position = "dodge") + 
+  coord_flip() +
+  labs(x = "Race", y = "Count") +
+  ggtitle("COVID Severity Among Children based on Race") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"), 
+                    labels = c("Asymptomatic","Moderate","Severe"),
+                    name = "COVID Severity") 
+```
+```{r}
+non_cf %>% 
+  ggplot(aes(x=ethnicity, fill = COVIDseverity)) +
+  geom_bar(position = "dodge") +
+  labs(x = "Ethnicity", y = "Count") +
+  ggtitle("COVID Severity Among Children based on Ethnicity") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"), 
+                    labels = c("Asymptomatic","Moderate","Severe"),
+                    name = "COVID Severity") 
 ```
 
