@@ -9,13 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
-```{r}
-library(tidyverse)
-library(ggplot2)
-```
+
 
 ## Part 1
-
 
 ```{r}
 library(viridis)
@@ -63,30 +59,63 @@ ggplot(con_tab) +
 con_tab2 <- d %>%
   select(has_cf, COVIDseverity, starts_with('comorb')) %>%
   filter(has_cf == 0)
+```
 
+
+```{r morbidities}
 #retrieve most prevalent diseases
 summary(con_tab2)
 ```
 
 ```{r sever0}
 severity0 <- con_tab2 %>%
-  filter(COVIDseverity == 0)
+  filter(COVIDseverity == 0) %>%
+  select(-has_cf, -COVIDseverity)
 
-summary(severity0)
+indx1 <- sapply(severity0, is.factor)
+severity0[indx1] <- lapply(severity0[indx1], function(x) as.numeric(as.character(x)))
+
+sev0_sum <- colSums(severity0)
 ```
 
 ```{r sever1}
 severity1 <- con_tab2 %>%
-  filter(COVIDseverity == 1)
+  filter(COVIDseverity == 1) %>%
+  select(-has_cf, -COVIDseverity)
 
-summary(severity1)
+indx0 <- sapply(severity1, is.factor)
+severity1[indx0] <- lapply(severity1[indx], function(x) as.numeric(as.character(x)))
+
+sev1_sum <- colSums(severity1)
 ```
 
 ```{r sever2}
 severity2 <- con_tab2 %>%
-  filter(COVIDseverity == 2)
+  filter(COVIDseverity == 2) %>%
+  select(-has_cf, -COVIDseverity)
 
-summary(severity2)
+indx <- sapply(severity2, is.factor)
+severity2[indx] <- lapply(severity2[indx], function(x) as.numeric(as.character(x)))
+
+sev2_sum <- colSums(severity2)
+```
+
+```{r severity lvls df}
+#created new df based on counts of morbidities across severity lvls
+library(reshape2)
+sev_lvls <- rbind(sev0_sum, sev1_sum, sev2_sum)
+
+melted_sev_lvls <- melt(sev_lvls)
+
+colnames(melted_sev_lvls) <- c('severity_lvl', 'morbidity','obs')
+```
+
+```{r visual}
+ggplot(melted_sev_lvls, aes(x=morbidity, y = obs)) +
+  geom_bar(stat = 'identity') +
+  coord_flip()+
+  facet_wrap(~severity_lvl) + 
+  theme(axis.text.x = element_text(angle=45))
 ```
 
 
