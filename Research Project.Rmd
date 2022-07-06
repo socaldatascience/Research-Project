@@ -17,7 +17,7 @@ library(tidyverse)
 library(viridis)
 library(hrbrthemes)
 
-#sub dataframe of patients with CF
+#sub data frame of patients with CF
 cf <- filter(d, has_cf == 1)
 
 #contingency table of observed counts between CF and non-CF of lvls of sympt.
