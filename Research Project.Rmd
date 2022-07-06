@@ -97,6 +97,44 @@ summary(severity2)
 
 ## Part 4
 
+```{r}
+#contingency table, compares non-cf covid severity with race
+non_cf %>% 
+  group_by(COVIDseverity, encountertype) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  knitr::kable()
+```
+
+```{r}
+#contingency table, compares cf covid severity with encountertype
+cf %>% 
+  group_by(COVIDseverity, encountertype) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  knitr::kable()
+```
+
+```{r}
+#contingency table, compares non-cf covid severity with race
+non_cf %>% 
+  group_by(COVIDseverity, race) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  knitr::kable()
+```
+
+```{r}
+#contingency table, compares covid severity between cf and non-cf
+con_tab %>% 
+  group_by(has_cf, COVIDseverity) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  knitr::kable()
+```
+
+
+
 ## Part 5
 ```{r}
 non_cf <- d %>%
