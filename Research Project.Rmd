@@ -200,14 +200,29 @@ d %>%
   ggplot(aes(x=encountertype, 
              fill = has_cf)) +
   geom_bar(position = "dodge") +
-  labs(x = "COVID Severity", y = "Age at Encounter") +
-  ggtitle("COVID Severity Among Children based on Age") +
+  labs(x = "Type of Encounter", y = "Count") +
+  ggtitle("COVID Severity Among Children based on Type of Encounter") +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_fill_manual(values =c("#E69F00","#009E73"), 
                     labels = c("Non CF","CF"), 
                     name = "Cystic Fibrosis Diagnosis") +
-  coord_flip()
+  coord_flip() +
+  scale_y_continuous(labels = comma)
 ```
+```{r}
+table(d$ethnicity,d$has_cf)
+```
+```{r}
+table(d$race,d$COVIDseverity)
+```
+
+X AXIS 3 CATEGORIES Y AXIS 2 CATEGORIES
+```{r}
+table(d$ethnicity,d$encountertype)
+```
+
+
+
 
 
 
