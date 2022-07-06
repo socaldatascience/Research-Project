@@ -96,6 +96,59 @@ summary(severity2)
 
 ## Part 4
 
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity) %>% 
+  select(encountertype) %>% 
+  table()
+```
+
+```{r}
+cf %>% 
+  group_by(COVIDseverity) %>% 
+  select(encountertype) %>% 
+  table()
+```
+
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, encountertype) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  knitr::kable()
+```
+
+```{r}
+cf %>% 
+  group_by(COVIDseverity, encountertype) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  knitr::kable()
+```
+
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  knitr::kable()
+```
+
+```{r}
+cf %>% 
+  group_by(COVIDseverity) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, race) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  knitr::kable()
+```
+
 ## Part 5
 ```{r}
 non_cf <- d %>%
