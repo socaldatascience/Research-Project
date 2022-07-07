@@ -9,14 +9,17 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
+<<<<<<< HEAD
+
+=======
 ```{r}
 library(tidyverse)
 library(ggplot2)
 library(scales)
 ```
+>>>>>>> b05b752bf06ca6305982e887454b3706d5b359ce
 
 ## Part 1
-
 
 ```{r}
 library(viridis)
@@ -59,35 +62,131 @@ ggplot(con_tab) +
   coord_cartesian(ylim = c(0, 60000))
 ```
 
-```{r morbidities}
-#table with severity, cf and comorbidities
-con_tab2 <- d %>%
-  select(has_cf, COVIDseverity, starts_with('comorb')) %>%
+```{r morbidity Tables}
+#table with severity, cf and comorbidities NOTE: Changed names for readability
+morb_df <- d %>%
+  select(has_cf, COVIDseverity, starts_with('comorb'))
+
+
+colnames(morb_df) <- c('has_cf', 'COVIDseverity', 'bronchiectasis',
+                        'pulmonary_disease', 'asthma', 'nasal_polyps',
+                        'hemoptysis', 'pneumothorax', 'resp_failure', 
+                        'malnutrition', 'other_nutri_deficiency', 
+                        'type1_diabetes', 'type2_diabetes', 'obesity', 
+                        'liver_disease', 'other_GI_notLiver', 
+                        'essential_hypertension', 'hypertensive_heart_disease',
+                        'chronic_kidney_disease', 'nicotine_dependence', 
+                        'heart_failure', 'ischemic_heart_disease', 
+                        'lung_transplant')
+
+#table of non cystic fibrosis patients
+morb_noCF <- morb_df  %>%
   filter(has_cf == 0)
 
-#retrieve most prevalent diseases
-summary(con_tab2)
+#table of cystic fibrosis patients
+morb_CF <- morb_df %>%
+  filter(has_cf == 1)
 ```
 
-```{r sever0}
-severity0 <- con_tab2 %>%
-  filter(COVIDseverity == 0)
+```{r Severity Levels noCF}
 
-summary(severity0)
+#Tables of severity symptoms level 0
+severity0_noCF <- morb_noCF %>%
+  filter(COVIDseverity == 0) %>%
+  select(-has_cf, -COVIDseverity)
+
+indx0 <- sapply(severity0_noCF, is.factor)
+severity0_noCF[indx0] <- lapply(severity0_noCF[indx0], 
+                           function(x) as.numeric(as.character(x)))
+
+#Tables of severity symptoms level 1
+severity1_noCF <- morb_noCF %>%
+  filter(COVIDseverity == 1) %>%
+  select(-has_cf, -COVIDseverity)
+
+indx1 <- sapply(severity1_noCF, is.factor)
+severity1_noCF[indx1] <- lapply(severity1_noCF[indx1], 
+                           function(x) as.numeric(as.character(x)))
+
+#Tables of severity symptoms level 2 
+severity2_noCF <- morb_noCF %>%
+  filter(COVIDseverity == 2) %>%
+  select(-has_cf, -COVIDseverity)
+
+indx2 <- sapply(severity2_noCF, is.factor)
+severity2_noCF[indx2] <- lapply(severity2_noCF[indx2], 
+                           function(x) as.numeric(as.character(x)))
+
+#Vectorized severities of counts
+sev0_sum_noCF <- colSums(severity0_noCF)
+sev1_sum_noCF <- colSums(severity1_noCF)
+sev2_sum_noCF <- colSums(severity2_noCF)
+
+#created new df based on counts of morbidities across severity lvls 
+library(reshape2)
+
+sev_lvls_noCF <- rbind(sev0_sum_noCF, sev1_sum_noCF, sev2_sum_noCF)
+melted_sev_lvls_noCF <- melt(sev_lvls_noCF)
+colnames(melted_sev_lvls_noCF) <- c('severity_lvl', 'morbidity','obs')
 ```
 
-```{r sever1}
-severity1 <- con_tab2 %>%
-  filter(COVIDseverity == 1)
 
-summary(severity1)
+```{r visual non-CF}
+ggplot(melted_sev_lvls_noCF, aes(x=morbidity, y = obs)) +
+  geom_bar(stat = 'identity') +
+  coord_flip()+
+  facet_wrap(~severity_lvl) + 
+  theme(axis.text.x = element_text(angle=45))
 ```
 
-```{r sever2}
-severity2 <- con_tab2 %>%
-  filter(COVIDseverity == 2)
 
-summary(severity2)
+
+```{r Severity Levels CF}
+#Tables of severity symptoms level 0
+severity0_CF <- morb_CF %>%
+  filter(COVIDseverity == 0) %>%
+  select(-has_cf, -COVIDseverity)
+
+indx0_cf <- sapply(severity0_CF, is.factor)
+severity0_CF[indx0_cf] <- lapply(severity0_CF[indx0_cf], 
+                           function(x) as.numeric(as.character(x)))
+
+#Tables of severity symptoms level 1
+severity1_CF <- morb_CF %>%
+  filter(COVIDseverity == 1) %>%
+  select(-has_cf, -COVIDseverity)
+
+indx1_cf <- sapply(severity1_CF, is.factor)
+severity1_CF[indx1_cf] <- lapply(severity1_CF[indx1_cf], 
+                           function(x) as.numeric(as.character(x)))
+
+#Tables of severity symptoms level 2 
+severity2_CF <- morb_CF %>%
+  filter(COVIDseverity == 2) %>%
+  select(-has_cf, -COVIDseverity)
+
+indx2_cf <- sapply(severity2_CF, is.factor)
+severity2_CF[indx2_cf] <- lapply(severity2_CF[indx2_cf], 
+                           function(x) as.numeric(as.character(x)))
+
+#Vectorized severities of counts
+sev0_sum_CF <- colSums(severity0_CF)
+sev1_sum_CF <- colSums(severity1_CF)
+sev2_sum_CF <- colSums(severity2_CF)
+
+#created new df based on counts of morbidities across severity lvls 
+sev_lvls_CF <- rbind(sev0_sum_CF, sev1_sum_CF, sev2_sum_CF)
+melted_sev_lvls_CF <- melt(sev_lvls_CF)
+colnames(melted_sev_lvls_CF) <- c('severity_lvl', 'morbidity','obs')
+```
+
+
+```{r visual CF}
+ggplot(melted_sev_lvls_CF, aes(x=morbidity, y = obs)) +
+  geom_bar(stat = 'identity') +
+  coord_flip()+
+  facet_wrap(~severity_lvl) + 
+  theme(axis.text.x = element_text(angle=45))
 ```
 
 
@@ -311,6 +410,7 @@ X AXIS 3 CATEGORIES Y AXIS 2 CATEGORIES
 ```{r}
 table(d$ethnicity,d$encountertype)
 ```
+
 
 
 
