@@ -102,7 +102,7 @@ summary(severity2)
 non_cf %>% 
   group_by(COVIDseverity, encountertype) %>% 
   summarize(N = n()) %>% 
-  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  mutate(Ratio = round(N / sum(N), 3)) %>% 
   knitr::kable()
 ```
 
@@ -111,16 +111,16 @@ non_cf %>%
 cf %>% 
   group_by(COVIDseverity, encountertype) %>% 
   summarize(N = n()) %>% 
-  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  mutate(Ratio = round(N / sum(N), 3)) %>% 
   knitr::kable()
 ```
 
 ```{r}
-#contingency table, compares non-cf covid severity with race
+#contingency table, compares cf covid severity with encountertype
 non_cf %>% 
-  group_by(COVIDseverity, race) %>% 
+  group_by(COVIDseverity, encountertype) %>% 
   summarize(N = n()) %>% 
-  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  mutate(Ratio = round(N / sum(N), 3)) %>% 
   knitr::kable()
 ```
 
@@ -129,10 +129,63 @@ non_cf %>%
 con_tab %>% 
   group_by(has_cf, COVIDseverity) %>% 
   summarize(N = n()) %>% 
-  mutate(Ratio = round(N / sum(N), 2)) %>% 
+  mutate(Ratio = round((N / sum(N)), 3)) %>% 
   knitr::kable()
 ```
 
+```{r}
+#contingency table, compares covid severity between cf and non-cf
+ratetable <- con_tab %>% 
+  group_by(has_cf, COVIDseverity) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+ratetable <- con_tab %>% 
+  group_by(has_cf, COVIDseverity) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round((N / sum(N)), 3))
+```
+
+
+```{r}
+#bar plot, covid severity for cf patients
+ggplot(ratetable, aes(x = has_cf,
+                      y = Ratio,
+                      fill = COVIDseverity), position = "dodge") +
+    labs(x = "Patients Without CF", 
+       y = "Rate", 
+       title = "COVID Severity Among Children With/Without Cystic Fibrosis") +
+  geom_bar(stat = "identity")
+```
+
+```{r}
+library(ggplot2)
+theme_set(theme_classic())
+
+ratetable <-
+```
+
+
+```{r}
+#bar plot, covid severity for non-cf patients
+ggplot(non_cf) +
+  geom_bar(mapping = aes(x=has_cf, fill = COVIDseverity), 
+           position = 'dodge') +
+  scale_y_continuous(labels = comma) +
+  labs(x = "Patients Without CF", 
+       y = "Count", 
+       title = "COVID Severity Among Children Without Cystic Fibrosis")
+```
+
+```{r}
+ggplot(con_tab) +
+  geom_bar(mapping = aes(x=has_cf, fill = COVIDseverity), 
+           position = 'dodge') +
+  coord_cartesian(ylim = c(0, 60000)) +
+  scale_y_continuous(labels = comma)
+```
 
 
 ## Part 5
