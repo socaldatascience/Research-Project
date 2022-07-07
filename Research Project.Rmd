@@ -214,25 +214,59 @@ non_cf %>%
   geom_bar(position = "dodge") + 
   coord_flip() +
   labs(x = "Race", y = "Count") +
-  ggtitle("COVID Severity Among Children based on Race") +
-  theme(plot.title = element_text(hjust = 0.5)) +
+  ggtitle("COVID Severity Among Children based on Race", subtitle = "Non Cystic Fibrosis") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle=element_text(hjust=0.5)) +
   scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"), 
                     labels = c("Asymptomatic","Moderate","Severe"),
                     name = "COVID Severity") +
   scale_y_continuous(labels = comma)
 ```
 ```{r}
-non_cf %>% 
-  ggplot(aes(x=ethnicity, fill = COVIDseverity)) +
-  geom_bar(position = "dodge") +
-  labs(x = "Ethnicity", y = "Count") +
-  ggtitle("COVID Severity Among Children based on Ethnicity") +
-  theme(plot.title = element_text(hjust = 0.5)) +
+cf %>% 
+  ggplot(aes(x=race, fill = COVIDseverity)) +
+  geom_bar(position = "dodge") + 
+  coord_flip() +
+  labs(x = "Race", y = "Count") +
+  ggtitle("COVID Severity Among Children based on Race",
+          subtitle = "Cystic Fibrosis") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle=element_text(hjust=0.5)) +
   scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"), 
                     labels = c("Asymptomatic","Moderate","Severe"),
                     name = "COVID Severity") +
   scale_y_continuous(labels = comma)
 ```
+
+```{r}
+non_cf %>% 
+  ggplot(aes(x=ethnicity, fill = COVIDseverity)) +
+  geom_bar(position = "dodge") +
+  labs(x = "Ethnicity", y = "Count") +
+  ggtitle("COVID Severity Among Children based on Ethnicity",
+          subtitle = "Non Cystic Fibrosis") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle=element_text(hjust=0.5)) +
+  scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"), 
+                    labels = c("Asymptomatic","Moderate","Severe"),
+                    name = "COVID Severity") +
+  scale_y_continuous(labels = comma) 
+```
+```{r}
+cf %>% 
+  ggplot(aes(x=ethnicity, fill = COVIDseverity)) +
+  geom_bar(position = "dodge") +
+  labs(x = "Ethnicity", y = "Count") +
+  ggtitle("COVID Severity Among Children based on Ethnicity",
+          subtitle = "Cystic Fibrosis") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle=element_text(hjust=0.5)) +
+  scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"), 
+                    labels = c("Asymptomatic","Moderate","Severe"),
+                    name = "COVID Severity") +
+  scale_y_continuous(labels = comma)
+```
+
 ```{r}
 d %>% 
   ggplot(aes(x=encountertype, 
@@ -258,6 +292,51 @@ X AXIS 3 CATEGORIES Y AXIS 2 CATEGORIES
 ```{r}
 table(d$ethnicity,d$encountertype)
 ```
+
+```{r}
+table(d$COVIDseverity,d$DELIRIUM)
+```
+```{r}
+table(d$COVIDseverity,d$INOTROPES)
+```
+```{r}
+table(d$COVIDseverity,d$REMDESIVIR)
+```
+```{r}
+table(d$COVIDseverity,d$CCP)
+```
+```{r}
+table(d$COVIDseverity,d$DEXAMETHASONE)
+```
+```{r}
+table(d$COVIDseverity,d$ENOXAPARIN)
+```
+```{r}
+table(d$COVIDseverity,d$HEPARIN)
+```
+```{r}
+table(d$COVIDseverity,d$IVIG)
+```
+```{r}
+table(d$COVIDseverity,d$METHYLPREDNISOLONE)
+```
+```{r}
+table(d$COVIDseverity,d$RITUXIMAB)
+```
+```{r}
+table(d$COVIDseverity,d$TOCILIZUMAB)
+```
+```{r}
+table(d$COVIDseverity,d$ASPIRIN)
+```
+```{r}
+table(d$COVIDseverity,d$LOPINAVIR_OR_RITONAVIR)
+```
+
+
+
+
+
 
 
 
