@@ -118,23 +118,27 @@ severity2_noCF[indx2] <- lapply(severity2_noCF[indx2],
                            function(x) as.numeric(as.character(x)))
 
 #Vectorized severities of counts
-sev0_sum_noCF <- colSums(severity0_noCF)
-sev1_sum_noCF <- colSums(severity1_noCF)
-sev2_sum_noCF <- colSums(severity2_noCF)
+asymptomatic <- colSums(severity0_noCF)
+mild_symptoms <- colSums(severity1_noCF)
+severe_symptoms <- colSums(severity2_noCF)
 
 #created new df based on counts of morbidities across severity lvls 
 library(reshape2)
 
-sev_lvls_noCF <- rbind(sev0_sum_noCF, sev1_sum_noCF, sev2_sum_noCF)
+sev_lvls_noCF <- rbind(asymptomatic, mild_symptoms, severe_symptoms)
 melted_sev_lvls_noCF <- melt(sev_lvls_noCF)
 colnames(melted_sev_lvls_noCF) <- c('severity_lvl', 'morbidity','obs')
 ```
 
 
 ```{r visual non-CF}
-ggplot(melted_sev_lvls_noCF, aes(x=morbidity, y = obs)) +
+options(scipen = 999)
+ggplot(melted_sev_lvls_noCF, aes(x=morbidity, y = obs, fill = obs)) +
   geom_bar(stat = 'identity') +
-  coord_flip()+
+  coord_flip() +
+  labs( x = 'Morbidity', y = 'Total Reported Conditions') +
+  ggtitle('Dominant Conditions in Non-CF patients with Covid 19') +
+  theme(plot.title = element_text(hjust = 0.5)) +
   facet_wrap(~severity_lvl) + 
   theme(axis.text.x = element_text(angle=45))
 ```
@@ -170,24 +174,171 @@ severity2_CF[indx2_cf] <- lapply(severity2_CF[indx2_cf],
                            function(x) as.numeric(as.character(x)))
 
 #Vectorized severities of counts
-sev0_sum_CF <- colSums(severity0_CF)
-sev1_sum_CF <- colSums(severity1_CF)
-sev2_sum_CF <- colSums(severity2_CF)
+asymptomatic <- colSums(severity0_CF)
+mild_symptoms <- colSums(severity1_CF)
+severe_symptoms <- colSums(severity2_CF)
 
 #created new df based on counts of morbidities across severity lvls 
-sev_lvls_CF <- rbind(sev0_sum_CF, sev1_sum_CF, sev2_sum_CF)
+sev_lvls_CF <- rbind(asymptomatic, mild_symptoms, severe_symptoms)
 melted_sev_lvls_CF <- melt(sev_lvls_CF)
 colnames(melted_sev_lvls_CF) <- c('severity_lvl', 'morbidity','obs')
 ```
 
 
 ```{r visual CF}
-ggplot(melted_sev_lvls_CF, aes(x=morbidity, y = obs)) +
+ggplot(melted_sev_lvls_CF, aes(x=morbidity, y = obs, fill = obs)) +
   geom_bar(stat = 'identity') +
   coord_flip()+
+  labs( x = 'Morbidity', y = 'Total Reported Conditions') +
+  ggtitle('Dominant Conditions in CF patients with Covid 19') +
+  theme(plot.title = element_text(hjust = 0.5)) +
   facet_wrap(~severity_lvl) + 
   theme(axis.text.x = element_text(angle=45))
 ```
+
+```{r test non cf}
+sev_lvls_noCF[1,1] = round(sev_lvls_noCF[1,1] / 296236, 2)
+sev_lvls_noCF[1,2] = round(sev_lvls_noCF[1,2] / 296236, 2)
+sev_lvls_noCF[1,3] = round(sev_lvls_noCF[1,3] / 296236, 2)
+sev_lvls_noCF[1,4] = round(sev_lvls_noCF[1,4] / 296236, 2)
+sev_lvls_noCF[1,5] = round(sev_lvls_noCF[1,5] / 296236, 2)
+sev_lvls_noCF[1,6] = round(sev_lvls_noCF[1,6] / 296236, 2)
+sev_lvls_noCF[1,7] = round(sev_lvls_noCF[1,7] / 296236, 2)
+sev_lvls_noCF[1,8] = round(sev_lvls_noCF[1,8] / 296236, 2)
+sev_lvls_noCF[1,9] = round(sev_lvls_noCF[1,9] / 296236, 2)
+sev_lvls_noCF[1,10] = round(sev_lvls_noCF[1,10] / 296236, 2)
+sev_lvls_noCF[1,11] = round(sev_lvls_noCF[1,11] / 296236, 2)
+sev_lvls_noCF[1,12] = round(sev_lvls_noCF[1,12] / 296236, 2)
+sev_lvls_noCF[1,13] = round(sev_lvls_noCF[1,13] / 296236, 2)
+sev_lvls_noCF[1,14] = round(sev_lvls_noCF[1,14] / 296236, 2)
+sev_lvls_noCF[1,15] = round(sev_lvls_noCF[1,15] / 296236, 2)
+sev_lvls_noCF[1,16] = round(sev_lvls_noCF[1,16] / 296236, 2)
+sev_lvls_noCF[1,17] = round(sev_lvls_noCF[1,17] / 296236, 2)
+sev_lvls_noCF[1,18] = round(sev_lvls_noCF[1,18] / 296236, 2)
+sev_lvls_noCF[1,19] = round(sev_lvls_noCF[1,19] / 296236, 2)
+sev_lvls_noCF[1,20] = round(sev_lvls_noCF[1,20] / 296236, 2)
+sev_lvls_noCF[1,21] = round(sev_lvls_noCF[1,21] / 296236, 2)
+
+sev_lvls_noCF[2,1] = round(sev_lvls_noCF[2,1] / 34015, 2)
+sev_lvls_noCF[2,2] = round(sev_lvls_noCF[2,2] / 34015, 2)
+sev_lvls_noCF[2,3] = round(sev_lvls_noCF[2,3] / 34015, 2)
+sev_lvls_noCF[2,4] = round(sev_lvls_noCF[2,4] / 34015, 2)
+sev_lvls_noCF[2,5] = round(sev_lvls_noCF[2,5] / 34015, 2)
+sev_lvls_noCF[2,6] = round(sev_lvls_noCF[2,6] / 34015, 2)
+sev_lvls_noCF[2,7] = round(sev_lvls_noCF[2,7] / 34015, 2)
+sev_lvls_noCF[2,8] = round(sev_lvls_noCF[2,8] / 34015, 2)
+sev_lvls_noCF[2,9] = round(sev_lvls_noCF[2,9] / 34015, 2)
+sev_lvls_noCF[2,10] = round(sev_lvls_noCF[2,10] / 34015, 2)
+sev_lvls_noCF[2,11] = round(sev_lvls_noCF[2,11] / 34015, 2)
+sev_lvls_noCF[2,12] = round(sev_lvls_noCF[2,12] / 34015, 2)
+sev_lvls_noCF[2,13] = round(sev_lvls_noCF[2,13] / 34015, 2)
+sev_lvls_noCF[2,14] = round(sev_lvls_noCF[2,14] / 34015, 2)
+sev_lvls_noCF[2,15] = round(sev_lvls_noCF[2,15] / 34015, 2)
+sev_lvls_noCF[2,16] = round(sev_lvls_noCF[2,16] / 34015, 2)
+sev_lvls_noCF[2,17] = round(sev_lvls_noCF[2,17] / 34015, 2)
+sev_lvls_noCF[2,18] = round(sev_lvls_noCF[2,18] / 34015, 2)
+sev_lvls_noCF[2,19] = round(sev_lvls_noCF[2,19] / 34015, 2)
+sev_lvls_noCF[2,20] = round(sev_lvls_noCF[2,20] / 34015, 2)
+sev_lvls_noCF[2,21] = round(sev_lvls_noCF[2,21] / 34015, 2)
+
+sev_lvls_noCF[3,1] = round(sev_lvls_noCF[3,1] / 20743, 2)
+sev_lvls_noCF[3,2] = round(sev_lvls_noCF[3,2] / 20743, 2)
+sev_lvls_noCF[3,3] = round(sev_lvls_noCF[3,3] / 20743, 2)
+sev_lvls_noCF[3,4] = round(sev_lvls_noCF[3,4] / 20743, 2)
+sev_lvls_noCF[3,5] = round(sev_lvls_noCF[3,5] / 20743, 2)
+sev_lvls_noCF[3,6] = round(sev_lvls_noCF[3,6] / 20743, 2)
+sev_lvls_noCF[3,7] = round(sev_lvls_noCF[3,7] / 20743, 2)
+sev_lvls_noCF[3,8] = round(sev_lvls_noCF[3,8] / 20743, 2)
+sev_lvls_noCF[3,9] = round(sev_lvls_noCF[3,9] / 20743, 2)
+sev_lvls_noCF[3,10] = round(sev_lvls_noCF[3,10] / 20743, 2)
+sev_lvls_noCF[3,11] = round(sev_lvls_noCF[3,11] / 20743, 2)
+sev_lvls_noCF[3,12] = round(sev_lvls_noCF[3,12] / 20743, 2)
+sev_lvls_noCF[3,13] = round(sev_lvls_noCF[3,13] / 20743, 2)
+sev_lvls_noCF[3,14] = round(sev_lvls_noCF[3,14] / 20743, 2)
+sev_lvls_noCF[3,15] = round(sev_lvls_noCF[3,15] / 20743, 2)
+sev_lvls_noCF[3,16] = round(sev_lvls_noCF[3,16] / 20743, 2)
+sev_lvls_noCF[3,17] = round(sev_lvls_noCF[3,17] / 20743, 2)
+sev_lvls_noCF[3,18] = round(sev_lvls_noCF[3,18] / 20743, 2)
+sev_lvls_noCF[3,19] = round(sev_lvls_noCF[3,19] / 20743, 2)
+sev_lvls_noCF[3,20] = round(sev_lvls_noCF[3,20] / 20743, 2)
+sev_lvls_noCF[3,21] = round(sev_lvls_noCF[3,21] / 20743, 2)
+
+melted_sev_lvls_noCF <- melt(sev_lvls_noCF)
+colnames(melted_sev_lvls_noCF) <- c('severity_lvl', 'morbidity','obs')
+```
+
+
+```{r test CF}
+sev_lvls_CF[1,1] = round(sev_lvls_CF[1,1] / 8454, 2)
+sev_lvls_CF[1,2] = round(sev_lvls_CF[1,2] / 8454, 2)
+sev_lvls_CF[1,3] = round(sev_lvls_CF[1,3] / 8454, 2)
+sev_lvls_CF[1,4] = round(sev_lvls_CF[1,4] / 8454, 2)
+sev_lvls_CF[1,5] = round(sev_lvls_CF[1,5] / 8454, 2)
+sev_lvls_CF[1,6] = round(sev_lvls_CF[1,6] / 8454, 2)
+sev_lvls_CF[1,7] = round(sev_lvls_CF[1,7] / 8454, 2)
+sev_lvls_CF[1,8] = round(sev_lvls_CF[1,8] / 8454, 2)
+sev_lvls_CF[1,9] = round(sev_lvls_CF[1,9] / 8454, 2)
+sev_lvls_CF[1,10] = round(sev_lvls_CF[1,10] / 8454, 2)
+sev_lvls_CF[1,11] = round(sev_lvls_CF[1,11] / 8454, 2)
+sev_lvls_CF[1,12] = round(sev_lvls_CF[1,12] / 8454, 2)
+sev_lvls_CF[1,13] = round(sev_lvls_CF[1,13] / 8454, 2)
+sev_lvls_CF[1,14] = round(sev_lvls_CF[1,14] / 8454, 2)
+sev_lvls_CF[1,15] = round(sev_lvls_CF[1,15] / 8454, 2)
+sev_lvls_CF[1,16] = round(sev_lvls_CF[1,16] / 8454, 2)
+sev_lvls_CF[1,17] = round(sev_lvls_CF[1,17] / 8454, 2)
+sev_lvls_CF[1,18] = round(sev_lvls_CF[1,18] / 8454, 2)
+sev_lvls_CF[1,19] = round(sev_lvls_CF[1,19] / 8454, 2)
+sev_lvls_CF[1,20] = round(sev_lvls_CF[1,20] / 8454, 2)
+sev_lvls_CF[1,21] = round(sev_lvls_CF[1,21] / 8454, 2)
+
+sev_lvls_CF[2,1] = round(sev_lvls_CF[2,1] / 1216, 2)
+sev_lvls_CF[2,2] = round(sev_lvls_CF[2,2] / 1216, 2)
+sev_lvls_CF[2,3] = round(sev_lvls_CF[2,3] / 1216, 2)
+sev_lvls_CF[2,4] = round(sev_lvls_CF[2,4] / 1216, 2)
+sev_lvls_CF[2,5] = round(sev_lvls_CF[2,5] / 1216, 2)
+sev_lvls_CF[2,6] = round(sev_lvls_CF[2,6] / 1216, 2)
+sev_lvls_CF[2,7] = round(sev_lvls_CF[2,7] / 1216, 2)
+sev_lvls_CF[2,8] = round(sev_lvls_CF[2,8] / 1216, 2)
+sev_lvls_CF[2,9] = round(sev_lvls_CF[2,9] / 1216, 2)
+sev_lvls_CF[2,10] = round(sev_lvls_CF[2,10] / 1216, 2)
+sev_lvls_CF[2,11] = round(sev_lvls_CF[2,11] / 1216, 2)
+sev_lvls_CF[2,12] = round(sev_lvls_CF[2,12] / 1216, 2)
+sev_lvls_CF[2,13] = round(sev_lvls_CF[2,13] / 1216, 2)
+sev_lvls_CF[2,14] = round(sev_lvls_CF[2,14] / 1216, 2)
+sev_lvls_CF[2,15] = round(sev_lvls_CF[2,15] / 1216, 2)
+sev_lvls_CF[2,16] = round(sev_lvls_CF[2,16] / 1216, 2)
+sev_lvls_CF[2,17] = round(sev_lvls_CF[2,17] / 1216, 2)
+sev_lvls_CF[2,18] = round(sev_lvls_CF[2,18] / 1216, 2)
+sev_lvls_CF[2,19] = round(sev_lvls_CF[2,19] / 1216, 2)
+sev_lvls_CF[2,20] = round(sev_lvls_CF[2,20] / 1216, 2)
+sev_lvls_CF[2,21] = round(sev_lvls_CF[2,21] / 1216, 2)
+
+sev_lvls_CF[3,1] = round(sev_lvls_CF[3,1] / 646, 2)
+sev_lvls_CF[3,2] = round(sev_lvls_CF[3,2] / 646, 2)
+sev_lvls_CF[3,3] = round(sev_lvls_CF[3,3] / 646, 2)
+sev_lvls_CF[3,4] = round(sev_lvls_CF[3,4] / 646, 2)
+sev_lvls_CF[3,5] = round(sev_lvls_CF[3,5] / 646, 2)
+sev_lvls_CF[3,6] = round(sev_lvls_CF[3,6] / 646, 2)
+sev_lvls_CF[3,7] = round(sev_lvls_CF[3,7] / 646, 2)
+sev_lvls_CF[3,8] = round(sev_lvls_CF[3,8] / 646, 2)
+sev_lvls_CF[3,9] = round(sev_lvls_CF[3,9] / 646, 2)
+sev_lvls_CF[3,10] = round(sev_lvls_CF[3,10] / 646, 2)
+sev_lvls_CF[3,11] = round(sev_lvls_CF[3,11] / 646, 2)
+sev_lvls_CF[3,12] = round(sev_lvls_CF[3,12] / 646, 2)
+sev_lvls_CF[3,13] = round(sev_lvls_CF[3,13] / 646, 2)
+sev_lvls_CF[3,14] = round(sev_lvls_CF[3,14] / 646, 2)
+sev_lvls_CF[3,15] = round(sev_lvls_CF[3,15] / 646, 2)
+sev_lvls_CF[3,16] = round(sev_lvls_CF[3,16] / 646, 2)
+sev_lvls_CF[3,17] = round(sev_lvls_CF[3,17] / 646, 2)
+sev_lvls_CF[3,18] = round(sev_lvls_CF[3,18] / 646, 2)
+sev_lvls_CF[3,19] = round(sev_lvls_CF[3,19] / 646, 2)
+sev_lvls_CF[3,20] = round(sev_lvls_CF[3,20] / 646, 2)
+sev_lvls_CF[3,21] = round(sev_lvls_CF[3,21] / 646, 2)
+
+melted_sev_lvls_CF <- melt(sev_lvls_CF)
+colnames(melted_sev_lvls_CF) <- c('severity_lvl', 'morbidity','obs')
+```
+
 
 
 ## Part 2
@@ -239,6 +390,7 @@ con_tab %>%
 non_cf <- d %>%
   filter(has_cf == 0)
 ```
+
 ```{r}
 non_cf %>% 
   ggplot(aes(x=COVIDseverity)) +
