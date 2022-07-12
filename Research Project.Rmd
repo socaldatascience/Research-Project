@@ -12,7 +12,6 @@ library(ggplot2)
 library(scales)
 ```
 
-
 ```{r prop comp}
 # Need to always load the package though
 library(epitools)
@@ -264,9 +263,6 @@ num_morb_perNonCF <- prop1(num_morb_perNonCF, 916615)
 ## Part 2
 
 ## Part 3
-
-<<<<<<< HEAD
-=======
 ```{r}
 library(tidyverse)
 filter(d, has_cf == 1)
@@ -355,8 +351,6 @@ nonsub_df %>%
   knitr::kable()
 ```
 
-
->>>>>>> 63d06eb14eeb43914f77c7e450e2800f67395935
 ## Part 4
 
 ```{r}
