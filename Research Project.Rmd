@@ -12,6 +12,52 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Part 1
 
 ## Part 2
+non_cf <- d %>% filter(has_cf == 0)
+View(non_cf)
+
+severity <- d %>% select(COVIDseverity, ECMO, HFNC, NC, bipapCpapNonInvasive, invasiveMechVentilation)
+
+ggplot(d, aes(x=COVIDseverity, fill = has_cf)) + geom_bar(position = "dodge")
+
+
+duration <- d %>% select(servicedate, dischargedate)
+duration$servicedate <- gsub("T"," ", duration$servicedate)
+duration$servicedate <- gsub("Z"," ", duration$servicedate)
+duration$dischargedate <- gsub("T", " ", duration$dischargedate)
+duration$dischargedate <- gsub("Z", " ", duration$dischargedate)
+duration$servicedate <- gsub(".000"," ", duration$servicedate)
+duration$dischargedate <- gsub(".000"," ", duration$dischargedate)
+duration$servicedate <- ymd_hms(duration$servicedate)
+duration$dischargedate <- ymd_hms(duration$dischargedate)
+duration$diffsecs=duration$dischargedate-duration$servicedate
+duration$diffmins=(duration$dischargedate-duration$servicedate)/60
+duration$diffmins <- gsub("secs","mins", duration$diffmins)
+duration$has_cf = d$has_cf
+duration$diffhrs=(duration$dischargedate-duration$servicedate)/3600
+
+time_non_cf <- duration %>% filter(has_cf == 0)
+time_has_cf <- duration %>% filter(has_cf == 1)
+
+time_non_cf <- time_non_cf %>% mutate(diffmins=as.numeric(diffmins))
+
+
+time_has_cf <- time_has_cf %>% mutate(diffmins = as.numeric(diffmins))
+time_has_cf <- time_has_cf %>% mutate(diffhrs = as.numeric(diffhrs))
+
+
+time_has_cf <- na.omit(time_has_cf)
+
+time_non_cf[time_non_cf < 0] <- NA
+time_non_cf <- na.omit(time_non_cf)
+
+
+plot_has_cf_lim <- ggplot(time_has_cf, aes(x=diffhrs)) + geom_histogram(bins=200) + coord_cartesian(xlim = c(0,700)) + ggtitle("Hours CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
+
+plot_has_cf_total <- ggplot(time_has_cf, aes(x=diffhrs)) + geom_histogram() + ggtitle("Hours CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
+
+plot_non_cf_total <- ggplot(time_non_cf, aes(x=diffhrs)) + geom_histogram() + ggtitle("Hours Non-CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
+
+plot_non_cf_lim <-ggplot(time_non_cf, aes(x=diffhrs)) + geom_histogram() + coord_cartesian(xlim = c(0,2500)) + ggtitle("Hours Non-CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
 
 ## Part 3
 
