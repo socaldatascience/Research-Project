@@ -1,8 +1,11 @@
 ---
 title: "Child Patients with Covid-19 and Cystic Fibrosis"
-author: "Alfonso Vieyra, Brandon Huett, Allison Cher, Brittnie Villasenor"
+author: "Alfonso Vieyra, Brandon Huett, Allison Cher, 
+  Brittnie Villasenor, Ernesto Collazo"
 date: '2022-06-30'
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -11,10 +14,6 @@ library(tidyverse)
 library(ggplot2)
 library(scales)
 ```
-<<<<<<< HEAD
-
-=======
->>>>>>> b05b752bf06ca6305982e887454b3706d5b359ce
 
 ## Part 1
 
@@ -44,7 +43,6 @@ morb_CF <- morb_df %>%
   filter(has_cf == 1)
 ```
 
-
 ```{r funcy}
 #created a function to calculate the proportions in a 1D vector
 prop1 <- function(arr, denom) {
@@ -57,7 +55,6 @@ prop1 <- function(arr, denom) {
   return(arr)
 }
 ```
-
 
 ```{r Severity Levels noCF}
 
@@ -117,8 +114,6 @@ ggplot(melted_sev_lvls_noCF, aes(x=morbidity, y = proportion, fill = proportion)
   facet_wrap(~severity_lvl) + 
   theme(axis.text.x = element_text(angle=45))
 ```
-
-
 
 ```{r Severity Levels CF}
 #Tables of severity symptoms level 0
@@ -210,7 +205,6 @@ ggplot(melted_cf_lvls, aes(x=morbidity, y = proportion, fill = proportion)) +
   facet_wrap(~has_CF) + 
   theme(axis.text.x = element_text(angle=45))
 ```
-
 
 ```{r # of morbidities in patients}
 #number of mordidities in each patient
