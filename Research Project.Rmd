@@ -12,12 +12,33 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Part 1
 
 ## Part 2
+
+##create subset of just non cf patients
+```{r}
 non_cf <- d %>% filter(has_cf == 0)
 View(non_cf)
+```
 
+##type of treatment determines covidseverity (0,1,2)
+```{r}
 severity <- d %>% select(COVIDseverity, ECMO, HFNC, NC, bipapCpapNonInvasive, invasiveMechVentilation)
+view(severity)
+```
 
+##counts of severity level based on cf and non cf patients
+```{r}
 ggplot(d, aes(x=COVIDseverity, fill = has_cf)) + geom_bar(position = "dodge")
+```
+
+##create subset that includes admission and discharge date/time for all patients
+```{r}
+duration <- d %>% select(servicedate, dischargedate)
+```
+
+
+```{r}
+
+```
 
 
 duration <- d %>% select(servicedate, dischargedate)
