@@ -1,7 +1,6 @@
 ---
 title: "Child Patients with Covid-19 and Cystic Fibrosis"
-author: "Alfonso Vieyra, Brandon Huett, Allison Cher, 
-  Brittnie Villasenor, Ernesto Collazo"
+author: "Alfonso Vieyra, Brandon Huett, Allison Cher, Brittnie Villasenor, Ernesto Collazo"
 date: '2022-06-30'
 output:
   pdf_document: default
