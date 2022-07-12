@@ -259,6 +259,10 @@ num_morb_perCF <- prop1(num_morb_perCF, 9337)
 num_morb_perNonCF <- prop1(num_morb_perNonCF, 916615)
 ```
 
+```{r logit}
+summary(glm(has_cf~comorb_bronchiectasis_J47, family = binomial(link='identity'), data = d))
+```
+
 
 ## Part 2
 ```{r}
@@ -477,6 +481,12 @@ nonsub_df %>%
 ## Part 4
 
 ```{r}
+con_tab <- d %>% 
+  select(COVIDseverity, has_cf, age_at_encounter)
+```
+
+
+```{r}
 #contingency table, compares non-cf covid severity with race
 non_cf %>% 
   group_by(COVIDseverity, encountertype) %>% 
@@ -513,8 +523,13 @@ con_tab %>%
 ```
 
 ```{r}
+<<<<<<< HEAD
+#contingency table, compares covid severity between cf and non-cf (shows percentage)
+con_tab %>% 
+=======
 #contingency table, compares covid severity between cf and non-cf
 ratetable <- con_tab %>% 
+>>>>>>> f400b9c441c21f1650d02d93567d4fabe52ad4df
   group_by(has_cf, COVIDseverity) %>% 
   summarize(N = n()) %>% 
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
@@ -566,11 +581,72 @@ ggplot(con_tab) +
   scale_y_continuous(labels = comma)
 ```
 
+Logistic Regression
+---------------------
+```{r}
+library(aod)
+library(ggplot2)
+```
+
+```{r}
+covsev01 <- d
+```
+
+```{r}
+covsev01 <-
+  d["COVIDseverity"][d["COVIDseverity"] == 2] <- 1
+```
+
+```{r}
+covid_data2 <- d %>% 
+  select(COVIDseverity, has_cf, age_at_encounter)
+```
+
+```{r}
+covid_data2["COVIDseverity"][covid_data2["COVIDseverity"] == 2] <- 1
+```
+
+```{r}
+model <- glm(COVIDseverity ~., family = binomial(link='logit'),
+             data = covid_data2)
+summary(model)
+```
+
+```{r}
+confint(model)
+```
+
+```{r}
+confint.default(model)
+```
+
+```{r}
+exp(coef(model))
+```
+```{r}
+exp(cbind(OR = coef(model), confint(model)))
+```
+
+```{r}
+wald.test(b = coef(model), Sigma = vcov(model), Terms = 1:2)
+```
+
+```{r}
+ggplot(covid_data2, aes(x = has_cf, y = COVIDseverity)) + geom_ribbon(aes(ymin = LL,
+    ymax = UL, fill = rank), alpha = 0.2) + geom_line(aes(colour = rank),
+    size = 1)
+```
+
 
 ## Part 5
 ```{r}
 non_cf <- d %>%
   filter(has_cf == 0)
+```
+
+```{r}
+cf <- d %>%
+  filter(has_cf == 1)
 ```
 
 ```{r}
@@ -729,9 +805,26 @@ table(d$ethnicity,d$encountertype)
 ```
 
 ```{r}
+# Medication 1
 table(d$COVIDseverity,d$INOTROPES)
 ```
 ```{r}
+# cf
+cf_intropes <- table(cf$COVIDseverity,cf$INOTROPES)
+mosaicplot(cf_intropes)
+```
+```{r}
+fisher.test(cf_intropes)
+chisq.test(cf_intropes)
+```
+```{r}
+# non cf
+non_cf_intropes <- table(non_cf$COVIDseverity,non_cf$INOTROPES)
+mosaicplot(non_cf_intropes)
+```
+
+```{r}
+# contingency table comparing COVID severity and medication INOTROPES
 cf %>% 
   group_by(COVIDseverity, INOTROPES) %>% 
   summarize(N = n()) %>% 
