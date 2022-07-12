@@ -522,15 +522,24 @@ ggplot(con_tab) +
 ```
 
 Logistic Regression
-
+---------------------
 ```{r}
 library(aod)
 library(ggplot2)
 ```
 
 ```{r}
-con_tab <- d %>% 
-  select(COVIDseverity, has_cf)
+covsev01 <- d
+```
+
+```{r}
+covsev01 <-
+  d["COVIDseverity"][d["COVIDseverity"] == 2] <- 1
+```
+
+```{r}
+covid_data2 <- d %>% 
+  select(COVIDseverity, has_cf, age_at_encounter)
 ```
 
 ```{r}
