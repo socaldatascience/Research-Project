@@ -1,21 +1,66 @@
 ---
 title: "Child Patients with Covid-19 and Cystic Fibrosis"
-author: "Alfonso Vieyra, Brandon Huett, Allison Cher, 
-  Brittnie Villasenor, Ernesto Collazo"
+author: "Alfonso Vieyra"
 date: '2022-06-30'
-output:
-  pdf_document: default
-  html_document: default
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+```
+<<<<<<< HEAD
+
+=======
+```{r}
+library(tidyverse)
 library(ggplot2)
 library(scales)
 ```
+>>>>>>> b05b752bf06ca6305982e887454b3706d5b359ce
 
 ## Part 1
+
+```{r}
+library(viridis)
+library(hrbrthemes)
+
+#sub data frame of patients with CF
+cf <- filter(d, has_cf == 1)
+
+#contingency table of observed counts between CF and non-CF of lvls of sympt.
+con_tab <- d %>% 
+  select(has_cf, COVIDseverity)
+table(con_tab)
+
+#graph of contingency NOTE: graph is zoom in to show cf patient bars
+ggplot(con_tab) +
+  geom_bar(mapping = aes(x=has_cf, fill = COVIDseverity), 
+           position = 'dodge') +
+  coord_cartesian(ylim = c(0, 60000))
+
+```
+
+```{r wrap}
+#using face_wrap for con_tab
+ggplot(con_tab, aes(fill=COVIDseverity, x=has_cf)) + 
+    geom_bar(position="dodge") +
+    scale_fill_viridis(discrete = T, option = "E") +
+    ggtitle("Observed counts") +
+    facet_wrap(~has_cf) +
+    theme_ipsum() +
+    theme(legend.position="none") +
+    xlab("") + 
+  coord_cartesian(ylim = c(0, 60000))
+```
+
+```{r grid}
+#using facet_grid for con_table
+ggplot(con_tab) +
+  geom_bar(mapping = aes(x=has_cf, fill = COVIDseverity), position = 'dodge') +
+  facet_grid(has_cf~.) + 
+  coord_cartesian(ylim = c(0, 60000))
+```
 
 ```{r morbidity Tables}
 #table with severity, cf and comorbidities NOTE: Changed names for readability
@@ -41,19 +86,6 @@ morb_noCF <- morb_df  %>%
 #table of cystic fibrosis patients
 morb_CF <- morb_df %>%
   filter(has_cf == 1)
-```
-
-```{r funcy}
-#created a function to calculate the proportions in a 1D vector
-prop1 <- function(arr, denom) {
-  count = 1
-  for (x in arr)
-  {
-    arr[count] = round(x / denom, 2)
-    count = count + 1
-  }
-  return(arr)
-}
 ```
 
 ```{r Severity Levels noCF}
@@ -94,26 +126,24 @@ severe_symptoms <- colSums(severity2_noCF)
 library(reshape2)
 
 sev_lvls_noCF <- rbind(asymptomatic, mild_symptoms, severe_symptoms)
-sev_lvls_noCF[1, ] <- prop1(sev_lvls_noCF[1,], 296236)
-sev_lvls_noCF[2, ] <- prop1(sev_lvls_noCF[2,], 34015)
-sev_lvls_noCF[3, ] <- prop1(sev_lvls_noCF[3,], 20743)
-
 melted_sev_lvls_noCF <- melt(sev_lvls_noCF)
-colnames(melted_sev_lvls_noCF) <- c('severity_lvl', 'morbidity','proportion')
+colnames(melted_sev_lvls_noCF) <- c('severity_lvl', 'morbidity','obs')
 ```
 
 
 ```{r visual non-CF}
 options(scipen = 999)
-ggplot(melted_sev_lvls_noCF, aes(x=morbidity, y = proportion, fill = proportion)) +
+ggplot(melted_sev_lvls_noCF, aes(x=morbidity, y = obs, fill = obs)) +
   geom_bar(stat = 'identity') +
   coord_flip() +
-  labs( x = 'Morbidities', y = 'Total Reported Conditions') +
+  labs( x = 'Morbidity', y = 'Total Reported Conditions') +
   ggtitle('Dominant Conditions in Non-CF patients with Covid 19') +
   theme(plot.title = element_text(hjust = 0.5)) +
   facet_wrap(~severity_lvl) + 
   theme(axis.text.x = element_text(angle=45))
 ```
+
+
 
 ```{r Severity Levels CF}
 #Tables of severity symptoms level 0
@@ -144,133 +174,176 @@ severity2_CF[indx2_cf] <- lapply(severity2_CF[indx2_cf],
                            function(x) as.numeric(as.character(x)))
 
 #Vectorized severities of counts
-asympt_mild <- colSums(severity0_CF)
-moderate_symptoms <- colSums(severity1_CF)
+asymptomatic <- colSums(severity0_CF)
+mild_symptoms <- colSums(severity1_CF)
 severe_symptoms <- colSums(severity2_CF)
 
 #created new df based on counts of morbidities across severity lvls 
-sev_lvls_CF <- rbind(asympt_mild, moderate_symptoms, severe_symptoms)
-sev_lvls_CF[1,] <- prop1(sev_lvls_CF[1,], 8454)
-sev_lvls_CF[2,] <- prop1(sev_lvls_CF[2,], 1216)
-sev_lvls_CF[3,] <- prop1(sev_lvls_CF[3,], 646)
-
+sev_lvls_CF <- rbind(asymptomatic, mild_symptoms, severe_symptoms)
 melted_sev_lvls_CF <- melt(sev_lvls_CF)
-colnames(melted_sev_lvls_CF) <- c('severity_lvl', 'morbidity','proportion')
+colnames(melted_sev_lvls_CF) <- c('severity_lvl', 'morbidity','obs')
 ```
 
+
 ```{r visual CF}
-ggplot(melted_sev_lvls_CF, aes(x=morbidity, y = proportion, fill = proportion)) +
+ggplot(melted_sev_lvls_CF, aes(x=morbidity, y = obs, fill = obs)) +
   geom_bar(stat = 'identity') +
   coord_flip()+
-  labs( x = 'Morbidities', y = 'Proportion of Conditions') +
+  labs( x = 'Morbidity', y = 'Total Reported Conditions') +
   ggtitle('Dominant Conditions in CF patients with Covid 19') +
   theme(plot.title = element_text(hjust = 0.5)) +
   facet_wrap(~severity_lvl) + 
   theme(axis.text.x = element_text(angle=45))
 ```
 
-```{r cf non cf}
-has_CF <- morb_CF %>%
-  select(-has_cf, -COVIDseverity)
+```{r test non cf}
+sev_lvls_noCF[1,1] = round(sev_lvls_noCF[1,1] / 296236, 2)
+sev_lvls_noCF[1,2] = round(sev_lvls_noCF[1,2] / 296236, 2)
+sev_lvls_noCF[1,3] = round(sev_lvls_noCF[1,3] / 296236, 2)
+sev_lvls_noCF[1,4] = round(sev_lvls_noCF[1,4] / 296236, 2)
+sev_lvls_noCF[1,5] = round(sev_lvls_noCF[1,5] / 296236, 2)
+sev_lvls_noCF[1,6] = round(sev_lvls_noCF[1,6] / 296236, 2)
+sev_lvls_noCF[1,7] = round(sev_lvls_noCF[1,7] / 296236, 2)
+sev_lvls_noCF[1,8] = round(sev_lvls_noCF[1,8] / 296236, 2)
+sev_lvls_noCF[1,9] = round(sev_lvls_noCF[1,9] / 296236, 2)
+sev_lvls_noCF[1,10] = round(sev_lvls_noCF[1,10] / 296236, 2)
+sev_lvls_noCF[1,11] = round(sev_lvls_noCF[1,11] / 296236, 2)
+sev_lvls_noCF[1,12] = round(sev_lvls_noCF[1,12] / 296236, 2)
+sev_lvls_noCF[1,13] = round(sev_lvls_noCF[1,13] / 296236, 2)
+sev_lvls_noCF[1,14] = round(sev_lvls_noCF[1,14] / 296236, 2)
+sev_lvls_noCF[1,15] = round(sev_lvls_noCF[1,15] / 296236, 2)
+sev_lvls_noCF[1,16] = round(sev_lvls_noCF[1,16] / 296236, 2)
+sev_lvls_noCF[1,17] = round(sev_lvls_noCF[1,17] / 296236, 2)
+sev_lvls_noCF[1,18] = round(sev_lvls_noCF[1,18] / 296236, 2)
+sev_lvls_noCF[1,19] = round(sev_lvls_noCF[1,19] / 296236, 2)
+sev_lvls_noCF[1,20] = round(sev_lvls_noCF[1,20] / 296236, 2)
+sev_lvls_noCF[1,21] = round(sev_lvls_noCF[1,21] / 296236, 2)
 
-indx_hasCF <- sapply(has_CF, is.factor)
-has_CF[indx_hasCF] <- lapply(has_CF[indx_hasCF], 
-                           function(x) as.numeric(as.character(x)))
+sev_lvls_noCF[2,1] = round(sev_lvls_noCF[2,1] / 34015, 2)
+sev_lvls_noCF[2,2] = round(sev_lvls_noCF[2,2] / 34015, 2)
+sev_lvls_noCF[2,3] = round(sev_lvls_noCF[2,3] / 34015, 2)
+sev_lvls_noCF[2,4] = round(sev_lvls_noCF[2,4] / 34015, 2)
+sev_lvls_noCF[2,5] = round(sev_lvls_noCF[2,5] / 34015, 2)
+sev_lvls_noCF[2,6] = round(sev_lvls_noCF[2,6] / 34015, 2)
+sev_lvls_noCF[2,7] = round(sev_lvls_noCF[2,7] / 34015, 2)
+sev_lvls_noCF[2,8] = round(sev_lvls_noCF[2,8] / 34015, 2)
+sev_lvls_noCF[2,9] = round(sev_lvls_noCF[2,9] / 34015, 2)
+sev_lvls_noCF[2,10] = round(sev_lvls_noCF[2,10] / 34015, 2)
+sev_lvls_noCF[2,11] = round(sev_lvls_noCF[2,11] / 34015, 2)
+sev_lvls_noCF[2,12] = round(sev_lvls_noCF[2,12] / 34015, 2)
+sev_lvls_noCF[2,13] = round(sev_lvls_noCF[2,13] / 34015, 2)
+sev_lvls_noCF[2,14] = round(sev_lvls_noCF[2,14] / 34015, 2)
+sev_lvls_noCF[2,15] = round(sev_lvls_noCF[2,15] / 34015, 2)
+sev_lvls_noCF[2,16] = round(sev_lvls_noCF[2,16] / 34015, 2)
+sev_lvls_noCF[2,17] = round(sev_lvls_noCF[2,17] / 34015, 2)
+sev_lvls_noCF[2,18] = round(sev_lvls_noCF[2,18] / 34015, 2)
+sev_lvls_noCF[2,19] = round(sev_lvls_noCF[2,19] / 34015, 2)
+sev_lvls_noCF[2,20] = round(sev_lvls_noCF[2,20] / 34015, 2)
+sev_lvls_noCF[2,21] = round(sev_lvls_noCF[2,21] / 34015, 2)
 
-has_noCF <- morb_noCF %>%
-  select(-has_cf, -COVIDseverity)
+sev_lvls_noCF[3,1] = round(sev_lvls_noCF[3,1] / 20743, 2)
+sev_lvls_noCF[3,2] = round(sev_lvls_noCF[3,2] / 20743, 2)
+sev_lvls_noCF[3,3] = round(sev_lvls_noCF[3,3] / 20743, 2)
+sev_lvls_noCF[3,4] = round(sev_lvls_noCF[3,4] / 20743, 2)
+sev_lvls_noCF[3,5] = round(sev_lvls_noCF[3,5] / 20743, 2)
+sev_lvls_noCF[3,6] = round(sev_lvls_noCF[3,6] / 20743, 2)
+sev_lvls_noCF[3,7] = round(sev_lvls_noCF[3,7] / 20743, 2)
+sev_lvls_noCF[3,8] = round(sev_lvls_noCF[3,8] / 20743, 2)
+sev_lvls_noCF[3,9] = round(sev_lvls_noCF[3,9] / 20743, 2)
+sev_lvls_noCF[3,10] = round(sev_lvls_noCF[3,10] / 20743, 2)
+sev_lvls_noCF[3,11] = round(sev_lvls_noCF[3,11] / 20743, 2)
+sev_lvls_noCF[3,12] = round(sev_lvls_noCF[3,12] / 20743, 2)
+sev_lvls_noCF[3,13] = round(sev_lvls_noCF[3,13] / 20743, 2)
+sev_lvls_noCF[3,14] = round(sev_lvls_noCF[3,14] / 20743, 2)
+sev_lvls_noCF[3,15] = round(sev_lvls_noCF[3,15] / 20743, 2)
+sev_lvls_noCF[3,16] = round(sev_lvls_noCF[3,16] / 20743, 2)
+sev_lvls_noCF[3,17] = round(sev_lvls_noCF[3,17] / 20743, 2)
+sev_lvls_noCF[3,18] = round(sev_lvls_noCF[3,18] / 20743, 2)
+sev_lvls_noCF[3,19] = round(sev_lvls_noCF[3,19] / 20743, 2)
+sev_lvls_noCF[3,20] = round(sev_lvls_noCF[3,20] / 20743, 2)
+sev_lvls_noCF[3,21] = round(sev_lvls_noCF[3,21] / 20743, 2)
 
-indx_hasNoCF <- sapply(has_noCF, is.factor)
-has_noCF[indx_hasNoCF] <- lapply(has_noCF[indx_hasNoCF], 
-                           function(x) as.numeric(as.character(x)))
-
-cyst_fibrosis_patients <- colSums(has_CF)
-noncyst_fibrosis_patients <- colSums(has_noCF)
-
-cf_lvls <- rbind(cyst_fibrosis_patients, noncyst_fibrosis_patients)
-cf_lvls[1,] <- prop1(cf_lvls[1,], 10316)
-cf_lvls[2,] <- prop1(cf_lvls[2,], 350994)
-
-melted_cf_lvls <- melt(cf_lvls)
-colnames(melted_cf_lvls) <- c('has_CF', 'morbidity','proportion')
+melted_sev_lvls_noCF <- melt(sev_lvls_noCF)
+colnames(melted_sev_lvls_noCF) <- c('severity_lvl', 'morbidity','obs')
 ```
 
-```{r visuals cf lvls}
-ggplot(melted_cf_lvls, aes(x=morbidity, y = proportion, fill = proportion)) +
-  geom_bar(stat = 'identity') +
-  coord_flip()+
-  labs( x = 'Morbidities', y = 'Proportion of Conditions') +
-  ggtitle('Dominant Conditions in CF and non-CF patients with Covid 19') +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  facet_wrap(~has_CF) + 
-  theme(axis.text.x = element_text(angle=45))
+
+```{r test CF}
+sev_lvls_CF[1,1] = round(sev_lvls_CF[1,1] / 8454, 2)
+sev_lvls_CF[1,2] = round(sev_lvls_CF[1,2] / 8454, 2)
+sev_lvls_CF[1,3] = round(sev_lvls_CF[1,3] / 8454, 2)
+sev_lvls_CF[1,4] = round(sev_lvls_CF[1,4] / 8454, 2)
+sev_lvls_CF[1,5] = round(sev_lvls_CF[1,5] / 8454, 2)
+sev_lvls_CF[1,6] = round(sev_lvls_CF[1,6] / 8454, 2)
+sev_lvls_CF[1,7] = round(sev_lvls_CF[1,7] / 8454, 2)
+sev_lvls_CF[1,8] = round(sev_lvls_CF[1,8] / 8454, 2)
+sev_lvls_CF[1,9] = round(sev_lvls_CF[1,9] / 8454, 2)
+sev_lvls_CF[1,10] = round(sev_lvls_CF[1,10] / 8454, 2)
+sev_lvls_CF[1,11] = round(sev_lvls_CF[1,11] / 8454, 2)
+sev_lvls_CF[1,12] = round(sev_lvls_CF[1,12] / 8454, 2)
+sev_lvls_CF[1,13] = round(sev_lvls_CF[1,13] / 8454, 2)
+sev_lvls_CF[1,14] = round(sev_lvls_CF[1,14] / 8454, 2)
+sev_lvls_CF[1,15] = round(sev_lvls_CF[1,15] / 8454, 2)
+sev_lvls_CF[1,16] = round(sev_lvls_CF[1,16] / 8454, 2)
+sev_lvls_CF[1,17] = round(sev_lvls_CF[1,17] / 8454, 2)
+sev_lvls_CF[1,18] = round(sev_lvls_CF[1,18] / 8454, 2)
+sev_lvls_CF[1,19] = round(sev_lvls_CF[1,19] / 8454, 2)
+sev_lvls_CF[1,20] = round(sev_lvls_CF[1,20] / 8454, 2)
+sev_lvls_CF[1,21] = round(sev_lvls_CF[1,21] / 8454, 2)
+
+sev_lvls_CF[2,1] = round(sev_lvls_CF[2,1] / 1216, 2)
+sev_lvls_CF[2,2] = round(sev_lvls_CF[2,2] / 1216, 2)
+sev_lvls_CF[2,3] = round(sev_lvls_CF[2,3] / 1216, 2)
+sev_lvls_CF[2,4] = round(sev_lvls_CF[2,4] / 1216, 2)
+sev_lvls_CF[2,5] = round(sev_lvls_CF[2,5] / 1216, 2)
+sev_lvls_CF[2,6] = round(sev_lvls_CF[2,6] / 1216, 2)
+sev_lvls_CF[2,7] = round(sev_lvls_CF[2,7] / 1216, 2)
+sev_lvls_CF[2,8] = round(sev_lvls_CF[2,8] / 1216, 2)
+sev_lvls_CF[2,9] = round(sev_lvls_CF[2,9] / 1216, 2)
+sev_lvls_CF[2,10] = round(sev_lvls_CF[2,10] / 1216, 2)
+sev_lvls_CF[2,11] = round(sev_lvls_CF[2,11] / 1216, 2)
+sev_lvls_CF[2,12] = round(sev_lvls_CF[2,12] / 1216, 2)
+sev_lvls_CF[2,13] = round(sev_lvls_CF[2,13] / 1216, 2)
+sev_lvls_CF[2,14] = round(sev_lvls_CF[2,14] / 1216, 2)
+sev_lvls_CF[2,15] = round(sev_lvls_CF[2,15] / 1216, 2)
+sev_lvls_CF[2,16] = round(sev_lvls_CF[2,16] / 1216, 2)
+sev_lvls_CF[2,17] = round(sev_lvls_CF[2,17] / 1216, 2)
+sev_lvls_CF[2,18] = round(sev_lvls_CF[2,18] / 1216, 2)
+sev_lvls_CF[2,19] = round(sev_lvls_CF[2,19] / 1216, 2)
+sev_lvls_CF[2,20] = round(sev_lvls_CF[2,20] / 1216, 2)
+sev_lvls_CF[2,21] = round(sev_lvls_CF[2,21] / 1216, 2)
+
+sev_lvls_CF[3,1] = round(sev_lvls_CF[3,1] / 646, 2)
+sev_lvls_CF[3,2] = round(sev_lvls_CF[3,2] / 646, 2)
+sev_lvls_CF[3,3] = round(sev_lvls_CF[3,3] / 646, 2)
+sev_lvls_CF[3,4] = round(sev_lvls_CF[3,4] / 646, 2)
+sev_lvls_CF[3,5] = round(sev_lvls_CF[3,5] / 646, 2)
+sev_lvls_CF[3,6] = round(sev_lvls_CF[3,6] / 646, 2)
+sev_lvls_CF[3,7] = round(sev_lvls_CF[3,7] / 646, 2)
+sev_lvls_CF[3,8] = round(sev_lvls_CF[3,8] / 646, 2)
+sev_lvls_CF[3,9] = round(sev_lvls_CF[3,9] / 646, 2)
+sev_lvls_CF[3,10] = round(sev_lvls_CF[3,10] / 646, 2)
+sev_lvls_CF[3,11] = round(sev_lvls_CF[3,11] / 646, 2)
+sev_lvls_CF[3,12] = round(sev_lvls_CF[3,12] / 646, 2)
+sev_lvls_CF[3,13] = round(sev_lvls_CF[3,13] / 646, 2)
+sev_lvls_CF[3,14] = round(sev_lvls_CF[3,14] / 646, 2)
+sev_lvls_CF[3,15] = round(sev_lvls_CF[3,15] / 646, 2)
+sev_lvls_CF[3,16] = round(sev_lvls_CF[3,16] / 646, 2)
+sev_lvls_CF[3,17] = round(sev_lvls_CF[3,17] / 646, 2)
+sev_lvls_CF[3,18] = round(sev_lvls_CF[3,18] / 646, 2)
+sev_lvls_CF[3,19] = round(sev_lvls_CF[3,19] / 646, 2)
+sev_lvls_CF[3,20] = round(sev_lvls_CF[3,20] / 646, 2)
+sev_lvls_CF[3,21] = round(sev_lvls_CF[3,21] / 646, 2)
+
+melted_sev_lvls_CF <- melt(sev_lvls_CF)
+colnames(melted_sev_lvls_CF) <- c('severity_lvl', 'morbidity','obs')
 ```
 
-```{r # of morbidities in patients}
-#number of mordidities in each patient
-num_morb_perCF <- table(rowSums(has_CF))
-num_morb_perNonCF <- table(rowSums(has_noCF))
-
-#Assign proportions for the number of comorbidities per patient
-num_morb_perCF <- prop1(num_morb_perCF, 9337)
-num_morb_perNonCF <- prop1(num_morb_perNonCF, 916615)
-```
 
 
 ## Part 2
 
 ## Part 3
-
-```{r}
-library(tidyverse)
-filter(d, has_cf == 1)
-sub_df <- filter(d, has_cf == 1)
-nonsub_df <- filter(d, has_cf == 0)
-```
-
-```{r}
-d %>%
-  select(COVIDseverity, comorb_lung_transplant_Z942) %>%
-  table()
-
-```
-
-```{r}
-sub_df %>%
-  select(COVIDseverity, comorb_lung_transplant_Z942) %>%
-  table()
-  
-```
-
-```{r}
-hr <- filter(d, heartrate <= 220)
-ppp <- ggplot(hr, aes(x = COVIDseverity, y = heartrate, fill = has_cf)) +
-  geom_boxplot() + 
-  ggtitle("Covid 19 Severity Based on Patients Heartrate")
-  scale_fill_manual(labels = c("Covid 19 Severity", "Heartrate of the Patient"))
-ppp <- ppp + guides(fill=guide_legend(title="CF Indicator"))
-ppp
-```
-
-```{r}
-p <- ggplot(sub_df, aes(x = COVIDseverity, fill = race)) +
-  geom_bar() + 
-  labs(x = "Covid 19 Severity",
-       y = "Number of Patients",
-       title = "Covid 19 Severity Within each Race of Patients with CF")
-p <- p + guides(fill=guide_legend(title="Race"))
-p
-```
-
-```{r}
-pp <- ggplot(nonsub_df, aes(x = COVIDseverity, fill = race)) +
-  geom_bar() + 
-  labs(x = "Covid 19 Severity",
-       y = "Number of Patients",
-       title = "Covid 19 Severity Within each Race of Patients without CF")
-pp <- pp + guides(fill=guide_legend(title="Race"))
-pp
-```
 
 ## Part 4
 
@@ -306,72 +379,62 @@ non_cf %>%
 con_tab %>% 
   group_by(has_cf, COVIDseverity) %>% 
   summarize(N = n()) %>% 
-  mutate(Ratio = round((N / sum(N)), 4)) %>% 
+  mutate(Ratio = round((N / sum(N)), 3)) %>% 
   knitr::kable()
 ```
 
 ```{r}
 #contingency table, compares covid severity between cf and non-cf
-con_tab %>% 
+ratetable <- con_tab %>% 
   group_by(has_cf, COVIDseverity) %>% 
   summarize(N = n()) %>% 
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
 ```
-
 ```{r}
-#assigns ratetable
 ratetable <- con_tab %>% 
   group_by(has_cf, COVIDseverity) %>% 
   summarize(N = n()) %>% 
   mutate(Ratio = round((N / sum(N)), 3))
 ```
 
-```{r}
-#assigns ratetable2 and removes COVIDseverity = 0
-ratetable2 <- ratetable %>% 
-  slice(2:3, 5:6)
-```
-
-```{r}
-tab <- table(d$COVIDseverity, d$has_cf)
-chisq.test(d$COVIDseverity, d$has_cf, correct = FALSE)
-chisq.test(tab)
-```
-
-```{r}
-#creates a vector to change x ticks
-xtick <- c("Non-CF", "CF")
-```
 
 ```{r}
 #bar plot, covid severity for cf patients
-xtick <- c("Non-CF", "CF")
 ggplot(ratetable, aes(x = has_cf,
-                      y = 100*(Ratio),
+                      y = Ratio,
                       fill = COVIDseverity), position = "dodge") +
-    labs(x = "Children Without/With CF", 
-       y = "Percentage", 
-       title = "COVID Severity Among Children Without/With Cystic Fibrosis") +
-  geom_bar(stat = "identity") +
-    scale_fill_manual(values =c("#009E73" ,"#0072B2","#CC79A7"), 
-                      labels = c("Asymptomatic/Mild", "Moderate", "Severe")) +
-  scale_x_discrete(labels = xtick)
+    labs(x = "Patients Without CF", 
+       y = "Rate", 
+       title = "COVID Severity Among Children With/Without Cystic Fibrosis") +
+  geom_bar(stat = "identity")
 ```
 
 ```{r}
-#bar plot, COVIDseverity for CF patients excluding COVIDseverity = 0
-ggplot(ratetable2, aes(x = has_cf,
-                      y = 100*(Ratio),
-                      fill = COVIDseverity), position = "dodge") +
-    labs(x = "Children Without/With CF", 
-       y = "Percentage", 
-       title = "COVID Severity Among Children Without/With Cystic Fibrosis") +
-  geom_bar(stat = "identity") +
-    theme(plot.title = element_text(hjust = 0.5)) +
-  scale_fill_manual(values =c("#0072B2","#CC79A7"), 
-                    labels = c("Moderate", "Severe")) +
-  scale_x_discrete(labels = xtick)
+library(ggplot2)
+theme_set(theme_classic())
+
+ratetable <-
+```
+
+
+```{r}
+#bar plot, covid severity for non-cf patients
+ggplot(non_cf) +
+  geom_bar(mapping = aes(x=has_cf, fill = COVIDseverity), 
+           position = 'dodge') +
+  scale_y_continuous(labels = comma) +
+  labs(x = "Patients Without CF", 
+       y = "Count", 
+       title = "COVID Severity Among Children Without Cystic Fibrosis")
+```
+
+```{r}
+ggplot(con_tab) +
+  geom_bar(mapping = aes(x=has_cf, fill = COVIDseverity), 
+           position = 'dodge') +
+  coord_cartesian(ylim = c(0, 60000)) +
+  scale_y_continuous(labels = comma)
 ```
 
 
@@ -447,7 +510,9 @@ d %>%
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_fill_manual(values =c("#E69F00","#009E73"), 
                     labels = c("Non CF","CF"), 
-                    name = "Cystic Fibrosis Diagnosis") 
+                    name = "Cystic Fibrosis Diagnosis") +
+  scale_x_discrete(breaks=c("0", "1","2"),
+                      labels=c("AsymptomaticMild", "Moderate","Severe"))
 ```
 ```{r}
 non_cf %>% 
@@ -535,45 +600,210 @@ table(d$ethnicity,d$encountertype)
 ```
 
 ```{r}
-table(d$COVIDseverity,d$DELIRIUM)
-```
-```{r}
 table(d$COVIDseverity,d$INOTROPES)
 ```
 ```{r}
+cf %>% 
+  group_by(COVIDseverity, INOTROPES) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, INOTROPES) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
 table(d$COVIDseverity,d$REMDESIVIR)
+```
+```{r}
+cf %>% 
+  group_by(COVIDseverity, REMDESIVIR) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, REMDESIVIR) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
 ```
 ```{r}
 table(d$COVIDseverity,d$CCP)
 ```
 ```{r}
+cf %>% 
+  group_by(COVIDseverity, CCP) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, CCP) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
 table(d$COVIDseverity,d$DEXAMETHASONE)
+```
+```{r}
+cf %>% 
+  group_by(COVIDseverity, DEXAMETHASONE) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, DEXAMETHASONE) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
 ```
 ```{r}
 table(d$COVIDseverity,d$ENOXAPARIN)
 ```
 ```{r}
+cf %>% 
+  group_by(COVIDseverity, ENOXAPARIN) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, ENOXAPARIN) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
 table(d$COVIDseverity,d$HEPARIN)
+```
+```{r}
+cf %>% 
+  group_by(COVIDseverity, HEPARIN) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, HEPARIN) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
 ```
 ```{r}
 table(d$COVIDseverity,d$IVIG)
 ```
 ```{r}
+cf %>% 
+  group_by(COVIDseverity, IVIG) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, IVIG) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
 table(d$COVIDseverity,d$METHYLPREDNISOLONE)
+```
+```{r}
+cf %>% 
+  group_by(COVIDseverity, METHYLPREDNISOLONE) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, METHYLPREDNISOLONE) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
 ```
 ```{r}
 table(d$COVIDseverity,d$RITUXIMAB)
 ```
 ```{r}
+cf %>% 
+  group_by(COVIDseverity, RITUXIMAB) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, RITUXIMAB) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
 table(d$COVIDseverity,d$TOCILIZUMAB)
+```
+```{r}
+cf %>% 
+  group_by(COVIDseverity, TOCILIZUMAB) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, TOCILIZUMAB) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
 ```
 ```{r}
 table(d$COVIDseverity,d$ASPIRIN)
 ```
 ```{r}
+cf %>% 
+  group_by(COVIDseverity, ASPIRIN) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, ASPIRIN) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
 table(d$COVIDseverity,d$LOPINAVIR_OR_RITONAVIR)
 ```
-
+```{r}
+cf %>% 
+  group_by(COVIDseverity, LOPINAVIR_OR_RITONAVIR) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, LOPINAVIR_OR_RITONAVIR) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
 
 
 
