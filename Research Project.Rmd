@@ -259,8 +259,79 @@ num_morb_perCF <- prop1(num_morb_perCF, 9337)
 num_morb_perNonCF <- prop1(num_morb_perNonCF, 916615)
 ```
 
+```{r logit}
+summary(glm(has_cf~comorb_bronchiectasis_J47, family = binomial(link='identity'), data = d))
+```
+
 
 ## Part 2
+
+##create subset of just non cf patients
+```{r}
+non_cf <- d %>% filter(has_cf == 0)
+View(non_cf)
+```
+
+##type of treatment determines covidseverity (0,1,2)
+```{r}
+severity <- d %>% select(COVIDseverity, ECMO, HFNC, NC, bipapCpapNonInvasive, invasiveMechVentilation)
+view(severity)
+```
+
+##counts of severity level based on cf and non cf patients
+```{r}
+ggplot(d, aes(x=COVIDseverity, fill = has_cf)) + geom_bar(position = "dodge")
+```
+
+##create subset that includes admission and discharge date/time for all patients
+```{r}
+duration <- d %>% select(servicedate, dischargedate)
+```
+
+
+```{r}
+
+```
+
+
+duration <- d %>% select(servicedate, dischargedate)
+duration$servicedate <- gsub("T"," ", duration$servicedate)
+duration$servicedate <- gsub("Z"," ", duration$servicedate)
+duration$dischargedate <- gsub("T", " ", duration$dischargedate)
+duration$dischargedate <- gsub("Z", " ", duration$dischargedate)
+duration$servicedate <- gsub(".000"," ", duration$servicedate)
+duration$dischargedate <- gsub(".000"," ", duration$dischargedate)
+duration$servicedate <- ymd_hms(duration$servicedate)
+duration$dischargedate <- ymd_hms(duration$dischargedate)
+duration$diffsecs=duration$dischargedate-duration$servicedate
+duration$diffmins=(duration$dischargedate-duration$servicedate)/60
+duration$diffmins <- gsub("secs","mins", duration$diffmins)
+duration$has_cf = d$has_cf
+duration$diffhrs=(duration$dischargedate-duration$servicedate)/3600
+
+time_non_cf <- duration %>% filter(has_cf == 0)
+time_has_cf <- duration %>% filter(has_cf == 1)
+
+time_non_cf <- time_non_cf %>% mutate(diffmins=as.numeric(diffmins))
+
+
+time_has_cf <- time_has_cf %>% mutate(diffmins = as.numeric(diffmins))
+time_has_cf <- time_has_cf %>% mutate(diffhrs = as.numeric(diffhrs))
+
+
+time_has_cf <- na.omit(time_has_cf)
+
+time_non_cf[time_non_cf < 0] <- NA
+time_non_cf <- na.omit(time_non_cf)
+
+
+plot_has_cf_lim <- ggplot(time_has_cf, aes(x=diffhrs)) + geom_histogram(bins=200) + coord_cartesian(xlim = c(0,700)) + ggtitle("Hours CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
+
+plot_has_cf_total <- ggplot(time_has_cf, aes(x=diffhrs)) + geom_histogram() + ggtitle("Hours CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
+
+plot_non_cf_total <- ggplot(time_non_cf, aes(x=diffhrs)) + geom_histogram() + ggtitle("Hours Non-CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
+
+plot_non_cf_lim <-ggplot(time_non_cf, aes(x=diffhrs)) + geom_histogram() + coord_cartesian(xlim = c(0,2500)) + ggtitle("Hours Non-CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
 
 ## Part 3
 ```{r}
@@ -354,6 +425,12 @@ nonsub_df %>%
 ## Part 4
 
 ```{r}
+con_tab <- d %>% 
+  select(COVIDseverity, has_cf, age_at_encounter)
+```
+
+
+```{r}
 #contingency table, compares non-cf covid severity with race
 non_cf %>% 
   group_by(COVIDseverity, encountertype) %>% 
@@ -390,8 +467,13 @@ con_tab %>%
 ```
 
 ```{r}
+<<<<<<< HEAD
+#contingency table, compares covid severity between cf and non-cf (shows percentage)
+con_tab %>% 
+=======
 #contingency table, compares covid severity between cf and non-cf
 ratetable <- con_tab %>% 
+>>>>>>> f400b9c441c21f1650d02d93567d4fabe52ad4df
   group_by(has_cf, COVIDseverity) %>% 
   summarize(N = n()) %>% 
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
@@ -441,6 +523,62 @@ ggplot(con_tab) +
            position = 'dodge') +
   coord_cartesian(ylim = c(0, 60000)) +
   scale_y_continuous(labels = comma)
+```
+
+Logistic Regression
+---------------------
+```{r}
+library(aod)
+library(ggplot2)
+```
+
+```{r}
+covsev01 <- d
+```
+
+```{r}
+covsev01 <-
+  d["COVIDseverity"][d["COVIDseverity"] == 2] <- 1
+```
+
+```{r}
+covid_data2 <- d %>% 
+  select(COVIDseverity, has_cf, age_at_encounter)
+```
+
+```{r}
+covid_data2["COVIDseverity"][covid_data2["COVIDseverity"] == 2] <- 1
+```
+
+```{r}
+model <- glm(COVIDseverity ~., family = binomial(link='logit'),
+             data = covid_data2)
+summary(model)
+```
+
+```{r}
+confint(model)
+```
+
+```{r}
+confint.default(model)
+```
+
+```{r}
+exp(coef(model))
+```
+```{r}
+exp(cbind(OR = coef(model), confint(model)))
+```
+
+```{r}
+wald.test(b = coef(model), Sigma = vcov(model), Terms = 1:2)
+```
+
+```{r}
+ggplot(covid_data2, aes(x = has_cf, y = COVIDseverity)) + geom_ribbon(aes(ymin = LL,
+    ymax = UL, fill = rank), alpha = 0.2) + geom_line(aes(colour = rank),
+    size = 1)
 ```
 
 
