@@ -396,6 +396,44 @@ pp <- pp + guides(fill=guide_legend(title="Race"))
 pp
 ```
 
+```{r}
+# example of contigency table
+table(d$COVIDseverity, d$INOTROPES)
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_hemoptysisR042) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_hemoptysisR042) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+# patients with cf
+sub_df %>%
+  group_by(COVIDseverity, comorb_bronchiectasis_J47) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_bronchiectasis_J47) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+
 ## Part 4
 
 ```{r}
