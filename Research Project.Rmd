@@ -281,6 +281,12 @@ pp
 ## Part 4
 
 ```{r}
+con_tab <- d %>% 
+  select(COVIDseverity, has_cf, age_at_encounter)
+```
+
+
+```{r}
 #contingency table, compares non-cf covid severity with race
 non_cf %>% 
   group_by(COVIDseverity, encountertype) %>% 
@@ -317,7 +323,7 @@ con_tab %>%
 ```
 
 ```{r}
-#contingency table, compares covid severity between cf and non-cf
+#contingency table, compares covid severity between cf and non-cf (shows percentage)
 con_tab %>% 
   group_by(has_cf, COVIDseverity) %>% 
   summarize(N = n()) %>% 
@@ -378,6 +384,53 @@ ggplot(ratetable2, aes(x = has_cf,
   scale_fill_manual(values =c("#0072B2","#CC79A7"), 
                     labels = c("Moderate", "Severe")) +
   scale_x_discrete(labels = xtick)
+```
+
+Logistic Regression
+
+```{r}
+library(aod)
+library(ggplot2)
+```
+
+```{r}
+con_tab <- d %>% 
+  select(COVIDseverity, has_cf)
+```
+
+```{r}
+covid_data2["COVIDseverity"][covid_data2["COVIDseverity"] == 2] <- 1
+```
+
+```{r}
+model <- glm(COVIDseverity ~., family = binomial(link='logit'),
+             data = covid_data2)
+summary(model)
+```
+
+```{r}
+confint(model)
+```
+
+```{r}
+confint.default(model)
+```
+
+```{r}
+exp(coef(model))
+```
+```{r}
+exp(cbind(OR = coef(model), confint(model)))
+```
+
+```{r}
+wald.test(b = coef(model), Sigma = vcov(model), Terms = 1:2)
+```
+
+```{r}
+ggplot(covid_data2, aes(x = has_cf, y = COVIDseverity)) + geom_ribbon(aes(ymin = LL,
+    ymax = UL, fill = rank), alpha = 0.2) + geom_line(aes(colour = rank),
+    size = 1)
 ```
 
 
