@@ -265,6 +265,9 @@ summary(glm(has_cf~comorb_bronchiectasis_J47, family = binomial(link='identity')
 
 
 ## Part 2
+```{r}
+library(lubridate)
+```
 
 ##create subset of just non cf patients
 ```{r}
@@ -274,7 +277,7 @@ View(non_cf)
 
 ##type of treatment determines covidseverity (0,1,2)
 ```{r}
-severity <- d %>% select(COVIDseverity, ECMO, HFNC, NC, bipapCpapNonInvasive, invasiveMechVentilation)
+severity <- d %>% select(personid, COVIDseverity, ECMO, HFNC, NC, bipapCpapNonInvasive, invasiveMechVentilation)
 view(severity)
 ```
 
@@ -288,50 +291,103 @@ ggplot(d, aes(x=COVIDseverity, fill = has_cf)) + geom_bar(position = "dodge")
 duration <- d %>% select(servicedate, dischargedate)
 ```
 
-
+##get rid of the letter "T" and "Z" in the service date column.
 ```{r}
+duration$servicedate <- gsub("T"," ", duration$servicedate)
+duration$servicedate <- gsub("Z"," ", duration$servicedate)
+```
+
+##Get rid of the letter "T" and "Z" in the discharge date column.
+```{r}
+duration$dischargedate <- gsub("T", " ", duration$dischargedate)
+duration$dischargedate <- gsub("Z", " ", duration$dischargedate)
+```
+
+##Get rid of ".000" in both columns.
+```{r}
+duration$servicedate <- gsub(".000"," ", duration$servicedate)
+duration$dischargedate <- gsub(".000"," ", duration$dischargedate)
+```
+
+
+##Transform dates stored as character or numeric vectors to POSIXct objects. 
+```{r}
+duration$servicedate <- ymd_hms(duration$servicedate)
+duration$dischargedate <- ymd_hms(duration$dischargedate)
+```
+
+##Subtract discharge date by service date to find length of hospital stay in seconds.
+```{r}
+duration$diffsecs <- duration$dischargedate-duration$servicedate
+```
+
+##Calculate the length of hospital stay in minutes. Create column for minutes.
+```{r}
+duration$diffmins=(duration$dischargedate-duration$servicedate)/60
+duration$diffmins <- gsub("secs","mins", duration$diffmins)
+```
+
+##Calulate the length of hospital stay in hours
+```{r}
+duration$diffhrs=(duration$dischargedate-duration$servicedate)/3600
+```
+
+##Attach "has_cf" column from d dataset to duration subset
+```{r}
+duration$has_cf = d$has_cf
+```
+
+##Filter the length of time for cf and non cf patients.
+```{r}
+time_non_cf <- duration %>% filter(has_cf == 0)
+time_has_cf <- duration %>% filter(has_cf == 1)
+```
+
+##non_cf: convert diffmins from character to numeric variable. convert diffhours to numeric.
+```{r}
+time_non_cf <- time_non_cf %>% mutate(diffmins=as.numeric(diffmins))
+time_non_cf <- time_non_cf %>% mutate(diffhrs=as.numeric(diffhrs))
+```
+
+##has_cf: convert diffmins from character to numeric variable. convert diffhours to numeric.
+```{r}
+time_has_cf <- time_has_cf %>% mutate(diffmins = as.numeric(diffmins))
+time_has_cf <- time_has_cf %>% mutate(diffhrs = as.numeric(diffhrs))
+```
+
+##get rid of NA values in time_has_cf subset.
+```{r}
+time_has_cf <- na.omit(time_has_cf)
+```
+
+##make any negative values in time_non_cf subset to NA. Get rid of NA values.
+```{r}
+time_non_cf[time_non_cf < 0] <- NA
+time_non_cf <- na.omit(time_non_cf)
+```
+
+##histogram of hours cf children spent at the hospital. does not include outliers. hours limited to 700 for visibility.
+```{r}
+plot_has_cf_lim <- ggplot(time_has_cf, aes(x=diffhrs)) + geom_histogram(bins=200) + coord_cartesian(xlim = c(0,700)) + ggtitle("Hours CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
 
 ```
 
 
-duration <- d %>% select(servicedate, dischargedate)
-duration$servicedate <- gsub("T"," ", duration$servicedate)
-duration$servicedate <- gsub("Z"," ", duration$servicedate)
-duration$dischargedate <- gsub("T", " ", duration$dischargedate)
-duration$dischargedate <- gsub("Z", " ", duration$dischargedate)
-duration$servicedate <- gsub(".000"," ", duration$servicedate)
-duration$dischargedate <- gsub(".000"," ", duration$dischargedate)
-duration$servicedate <- ymd_hms(duration$servicedate)
-duration$dischargedate <- ymd_hms(duration$dischargedate)
-duration$diffsecs=duration$dischargedate-duration$servicedate
-duration$diffmins=(duration$dischargedate-duration$servicedate)/60
-duration$diffmins <- gsub("secs","mins", duration$diffmins)
-duration$has_cf = d$has_cf
-duration$diffhrs=(duration$dischargedate-duration$servicedate)/3600
-
-time_non_cf <- duration %>% filter(has_cf == 0)
-time_has_cf <- duration %>% filter(has_cf == 1)
-
-time_non_cf <- time_non_cf %>% mutate(diffmins=as.numeric(diffmins))
-
-
-time_has_cf <- time_has_cf %>% mutate(diffmins = as.numeric(diffmins))
-time_has_cf <- time_has_cf %>% mutate(diffhrs = as.numeric(diffhrs))
-
-
-time_has_cf <- na.omit(time_has_cf)
-
-time_non_cf[time_non_cf < 0] <- NA
-time_non_cf <- na.omit(time_non_cf)
-
-
-plot_has_cf_lim <- ggplot(time_has_cf, aes(x=diffhrs)) + geom_histogram(bins=200) + coord_cartesian(xlim = c(0,700)) + ggtitle("Hours CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
-
+##histogram of hours cf children spent at the hospital. includes outliers 
+```{r}
 plot_has_cf_total <- ggplot(time_has_cf, aes(x=diffhrs)) + geom_histogram() + ggtitle("Hours CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
+```
 
+##histogram of hours non cf children spent at the hospital. includes outliers.
+```{r}
 plot_non_cf_total <- ggplot(time_non_cf, aes(x=diffhrs)) + geom_histogram() + ggtitle("Hours Non-CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
+```
 
+##histogram of hours non cf children spent at the hospital. does not include outliers. hours limited to 2500 for visibility.
+```{r}
 plot_non_cf_lim <-ggplot(time_non_cf, aes(x=diffhrs)) + geom_histogram() + coord_cartesian(xlim = c(0,2500)) + ggtitle("Hours Non-CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
+```
+
 
 ## Part 3
 ```{r}
