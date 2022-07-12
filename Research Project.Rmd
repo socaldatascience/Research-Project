@@ -451,6 +451,11 @@ non_cf <- d %>%
 ```
 
 ```{r}
+cf <- d %>%
+  filter(has_cf == 1)
+```
+
+```{r}
 non_cf %>% 
   ggplot(aes(x=COVIDseverity)) +
   geom_bar(fill = "magenta")
@@ -606,9 +611,26 @@ table(d$ethnicity,d$encountertype)
 ```
 
 ```{r}
+# Medication 1
 table(d$COVIDseverity,d$INOTROPES)
 ```
 ```{r}
+# cf
+cf_intropes <- table(cf$COVIDseverity,cf$INOTROPES)
+mosaicplot(cf_intropes)
+```
+```{r}
+fisher.test(cf_intropes)
+chisq.test(cf_intropes)
+```
+```{r}
+# non cf
+non_cf_intropes <- table(non_cf$COVIDseverity,non_cf$INOTROPES)
+mosaicplot(non_cf_intropes)
+```
+
+```{r}
+# contingency table comparing COVID severity and medication INOTROPES
 cf %>% 
   group_by(COVIDseverity, INOTROPES) %>% 
   summarize(N = n()) %>% 
