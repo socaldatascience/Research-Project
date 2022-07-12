@@ -9,15 +9,12 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
-<<<<<<< HEAD
 
-=======
 ```{r}
 library(tidyverse)
 library(ggplot2)
 library(scales)
 ```
->>>>>>> b05b752bf06ca6305982e887454b3706d5b359ce
 
 ```{r prop comp}
 install.packages('epitools')
@@ -396,9 +393,6 @@ colnames(melted_sev_lvls_CF) <- c('severity_lvl', 'morbidity','obs')
 ## Part 2
 
 ## Part 3
-
-<<<<<<< HEAD
-=======
 ```{r}
 library(tidyverse)
 filter(d, has_cf == 1)
@@ -487,8 +481,6 @@ nonsub_df %>%
   knitr::kable()
 ```
 
-
->>>>>>> 63d06eb14eeb43914f77c7e450e2800f67395935
 ## Part 4
 
 ```{r}
