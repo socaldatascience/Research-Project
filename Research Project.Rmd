@@ -467,13 +467,10 @@ con_tab %>%
 ```
 
 ```{r}
-<<<<<<< HEAD
 #contingency table, compares covid severity between cf and non-cf (shows percentage)
 con_tab %>% 
-=======
 #contingency table, compares covid severity between cf and non-cf
 ratetable <- con_tab %>% 
->>>>>>> f400b9c441c21f1650d02d93567d4fabe52ad4df
   group_by(has_cf, COVIDseverity) %>% 
   summarize(N = n()) %>% 
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
