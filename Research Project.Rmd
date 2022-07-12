@@ -259,6 +259,10 @@ num_morb_perCF <- prop1(num_morb_perCF, 9337)
 num_morb_perNonCF <- prop1(num_morb_perNonCF, 916615)
 ```
 
+```{r logit}
+summary(glm(has_cf~comorb_bronchiectasis_J47, family = binomial(link='identity'), data = d))
+```
+
 
 ## Part 2
 
