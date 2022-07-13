@@ -801,8 +801,6 @@ nonsub_df %>%
   knitr::kable()
 ```
 
-=======
->>>>>>> 089534ca4cc664aa7085839caa93e7a6b7798931
 ## Part 4
 
 ```{r}
