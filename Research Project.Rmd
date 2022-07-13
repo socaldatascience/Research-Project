@@ -10,17 +10,14 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggplot2)
 library(scales)
-```
-
-```{r prop comp}
 # Need to always load the package though
 library(epitools)
 library(rmeta)
 library(pROC)
 library(nnet)
+```
 
-#####################################################
-#####################################################
+```{r prop comp}
 # This is the prop.comp() function we will use
 #######
 prop.comp <- function( x, estimate="all", conf.level=.95, transpose=FALSE ){
