@@ -801,15 +801,12 @@ nonsub_df %>%
   knitr::kable()
 ```
 
-=======
->>>>>>> 089534ca4cc664aa7085839caa93e7a6b7798931
-## Part 4
+#Part 4
 
 ```{r}
 con_tab <- d %>% 
   select(COVIDseverity, has_cf, age_at_encounter)
 ```
-
 
 ```{r}
 #contingency table, compares non-cf covid severity with race
@@ -822,7 +819,7 @@ non_cf %>%
 
 ```{r}
 #contingency table, compares cf covid severity with encountertype
-cf %>% 
+d %>% 
   group_by(COVIDseverity, encountertype) %>% 
   summarize(N = n()) %>% 
   mutate(Ratio = round(N / sum(N), 3)) %>% 
@@ -848,22 +845,26 @@ con_tab %>%
 ```
 
 ```{r}
-#contingency table, compares covid severity between cf and non-cf (shows percentage)
-con_tab %>% 
-#contingency table, compares covid severity between cf and non-cf
 ratetable <- con_tab %>% 
+  group_by(has_cf, COVIDseverity)
+```
+
+
+```{r}
+#contingency table, compares covid severity between cf and non-cf
+  ratetable %>% 
   group_by(has_cf, COVIDseverity) %>% 
   summarize(N = n()) %>% 
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
 ```
+
 ```{r}
 ratetable <- con_tab %>% 
   group_by(has_cf, COVIDseverity) %>% 
   summarize(N = n()) %>% 
   mutate(Ratio = round((N / sum(N)), 3))
 ```
-
 
 ```{r}
 #bar plot, covid severity for cf patients
@@ -875,14 +876,6 @@ ggplot(ratetable, aes(x = has_cf,
        title = "COVID Severity Among Children With/Without Cystic Fibrosis") +
   geom_bar(stat = "identity")
 ```
-
-```{r}
-library(ggplot2)
-theme_set(theme_classic())
-
-ratetable <-
-```
-
 
 ```{r}
 #bar plot, covid severity for non-cf patients
@@ -903,15 +896,41 @@ ggplot(con_tab) +
   scale_y_continuous(labels = comma)
 ```
 
+```{r}
+  morb_df_age %>% 
+  group_by(has_cf, COVIDseverity) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
+treat_df <- d %>% 
+  select(has_cf, COVIDseverity, INOTROPES, REMDESIVIR, CCP,
+         DEXAMETHASONE, ENOXAPARIN, HEPARIN, IVIG,
+         METHYLPREDNISOLONE, RITUXIMAB, TOCILIZUMAB,
+         ASPIRIN, LOPINAVIR_OR_RITONAVIR)
+```
+
+```{r}
+  treat_df %>% 
+  group_by(has_cf, COVIDseverity, INOTROPES) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+
 Logistic Regression
----------------------
+
 ```{r}
 library(aod)
 library(ggplot2)
 library(mlbench)
-library(MASS)
 library(pROC)
-
+library(caret)
+library(InformationValue)
+library(ISLR)
 ```
 
 ```{r}
@@ -919,8 +938,7 @@ covsev01 <- d
 ```
 
 ```{r}
-covsev01 <-
-  d["COVIDseverity"][d["COVIDseverity"] == 2] <- 1
+covsev01["COVIDseverity"][covsev01["COVIDseverity"] == 2] <- 1
 ```
 
 ```{r}
@@ -934,9 +952,30 @@ covid_data2["COVIDseverity"][covid_data2["COVIDseverity"] == 2] <- 1
 
 ```{r}
 model <- glm(COVIDseverity ~., family = binomial(link='logit'),
-             data = covid_data2)
+             data = morb_df_01)
 summary(model)
 ```
+
+```{r}
+predict(model)
+```
+
+```{r}
+morb_grouped <- morb_df_01
+```
+
+```{r}
+morb_grouped %>% 
+  mutate(
+    respiratory_disease = case_when(
+      bronchiectasis == 1,
+      asthma == 1,
+      bronchiectasis ==0,
+      asthma == 0
+    )
+  )
+```
+
 
 ```{r}
 confint(model)
@@ -959,23 +998,43 @@ exp(cbind(OR = coef(model), confint(model)))
 ```
 
 ```{r}
-model_2 <- stepAIC(model)
+hist(model$fitted.values,main = " Histogram ",xlab = "Probability of 'pos' diabetes", col = 'light green')
 ```
-
 
 ```{r}
-hist(model_2$fitted.values,main = " Histogram ",xlab = "Probability of 'pos' diabetes", col = 'light green')
+#created altered data frame of morb_df to have severity to two levels
+morb_df_01 <- morb_df
+morb_df_01['COVIDseverity'][morb_df_01['COVIDseverity'] == 2] <- 1
+
+morb_df_01$COVIDseverity <- factor(morb_df_01$COVIDseverity, c(0,1))
 ```
-
-
-
 
 ```{r}
-ggplot(covid_data2, aes(x = has_cf, y = COVIDseverity)) + geom_ribbon(aes(ymin = LL,
-    ymax = UL, fill = age_at_encounter), alpha = 0.2) + geom_line(aes(colour = rank),
-    size = 1)
+morb_age <- morb_df_01
 ```
 
+```{r}
+morb_df_01 <- d %>%
+  select(has_cf, COVIDseverity, starts_with('comorb'))
+
+colnames(morb_df_01) <- c('has_cf', 'COVIDseverity', 'bronchiectasis',
+                        'pulmonary_disease', 'asthma', 'nasal_polyps',
+                        'hemoptysis', 'pneumothorax', 'resp_failure', 
+                        'malnutrition', 'other_nutri_deficiency', 
+                        'type1_diabetes', 'type2_diabetes', 'obesity', 
+                        'liver_disease', 'other_GI_notLiver', 
+                        'essential_hypertension', 'hypertensive_heart_disease',
+                        'chronic_kidney_disease', 'nicotine_dependence', 
+                        'heart_failure', 'ischemic_heart_disease', 
+                        'lung_transplant')
+
+```
+
+```{r}
+ggplot(morb_df_age, aes(x = age_at_encounter, y = hemoptysis)) + 
+  geom_point(alpha=.5) +
+  stat_smooth(method="glm", se=FALSE, method.args = list(family=binomial))
+```
 
 ## Part 5
 ```{r}
