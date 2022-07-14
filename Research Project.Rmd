@@ -446,6 +446,71 @@ table(d$COVIDseverity, d$INOTROPES)
 ```
 
 ```{r}
+# patients with cf
+sub_df %>%
+  group_by(COVIDseverity, comorb_bronchiectasis_J47) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_bronchiectasis_J47) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+# patients with cf
+sub_df %>%
+  group_by(COVIDseverity, comorb_copd_J40_J44) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_copd_J40_J44) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+# should look at asthma
+# patients with cf
+sub_df %>%
+  group_by(COVIDseverity, comorb_asthma_J45) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_asthma_J45) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+# patients with cf
+sub_df %>%
+  group_by(COVIDseverity, comorb_nasal_polyps_J33) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_nasal_polyps_J33) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
 #patients with cf 
 sub_df %>%
   group_by(COVIDseverity, comorb_hemoptysisR042) %>%
@@ -462,21 +527,281 @@ nonsub_df %>%
 ```
 
 ```{r}
-# patients with cf
+#patients with cf 
 sub_df %>%
-  group_by(COVIDseverity, comorb_bronchiectasis_J47) %>%
+  group_by(COVIDseverity, comorb_pneumothorax_J93) %>%
   summarize(N = n()) %>%
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
   knitr::kable()
 
 # patients without cf
 nonsub_df %>%
-  group_by(COVIDseverity, comorb_bronchiectasis_J47) %>%
+  group_by(COVIDseverity, comorb_pneumothorax_J93) %>%
   summarize(N = n()) %>%
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
   knitr::kable()
 ```
 
+```{r}
+# should look at resp failure
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_resp_failure_J96) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_resp_failure_J96) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_pneumothorax_J93) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_pneumothorax_J93) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_malnutrition) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_malnutrition) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_other_nutritional_deficiencies_E50_E64) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_other_nutritional_deficiencies_E50_E64) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_typeI_diabetes_E10) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_typeI_diabetes_E10) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_typeII_diabetes_E11) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_typeII_diabetes_E11) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_obesity_overweight_E66) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_obesity_overweight_E66) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_liver_disease_K70_K77) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_liver_disease_K70_K77) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+# this crazy to look at
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_other_GI_notLiver_K_excludesK70K77) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_other_GI_notLiver_K_excludesK70K77) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_essential_hypertension_I10) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_essential_hypertension_I10) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_hypertensive_heart_disease_I11) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_hypertensive_heart_disease_I11) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_chronic_kidney_disease_N18) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_chronic_kidney_disease_N18) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_nicotine_dependence_F17) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_nicotine_dependence_F17) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_heart_failure_I50) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_heart_failure_I50) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_ischemic_heart_disease_I20_I25) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_ischemic_heart_disease_I20_I25) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+```{r}
+#patients with cf 
+sub_df %>%
+  group_by(COVIDseverity, comorb_lung_transplant_Z942) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+
+# patients without cf
+nonsub_df %>%
+  group_by(COVIDseverity, comorb_lung_transplant_Z942) %>%
+  summarize(N = n()) %>%
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>%
+  knitr::kable()
+```
+
+=======
+>>>>>>> 089534ca4cc664aa7085839caa93e7a6b7798931
 ## Part 4
 
 ```{r}
@@ -522,13 +847,10 @@ con_tab %>%
 ```
 
 ```{r}
-<<<<<<< HEAD
 #contingency table, compares covid severity between cf and non-cf (shows percentage)
 con_tab %>% 
-=======
 #contingency table, compares covid severity between cf and non-cf
 ratetable <- con_tab %>% 
->>>>>>> f400b9c441c21f1650d02d93567d4fabe52ad4df
   group_by(has_cf, COVIDseverity) %>% 
   summarize(N = n()) %>% 
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
@@ -585,6 +907,10 @@ Logistic Regression
 ```{r}
 library(aod)
 library(ggplot2)
+library(mlbench)
+library(MASS)
+library(pROC)
+
 ```
 
 ```{r}
@@ -620,19 +946,32 @@ confint.default(model)
 ```
 
 ```{r}
+wald.test(b = coef(model), Sigma = vcov(model), Terms = 1:2)
+```
+
+```{r}
 exp(coef(model))
 ```
+
 ```{r}
 exp(cbind(OR = coef(model), confint(model)))
 ```
 
 ```{r}
-wald.test(b = coef(model), Sigma = vcov(model), Terms = 1:2)
+model_2 <- stepAIC(model)
 ```
+
+
+```{r}
+hist(model_2$fitted.values,main = " Histogram ",xlab = "Probability of 'pos' diabetes", col = 'light green')
+```
+
+
+
 
 ```{r}
 ggplot(covid_data2, aes(x = has_cf, y = COVIDseverity)) + geom_ribbon(aes(ymin = LL,
-    ymax = UL, fill = rank), alpha = 0.2) + geom_line(aes(colour = rank),
+    ymax = UL, fill = age_at_encounter), alpha = 0.2) + geom_line(aes(colour = rank),
     size = 1)
 ```
 
