@@ -6,9 +6,80 @@ output: html_document
 ---
 
 ```{r}
-con_tab <- d %>% 
-  select(COVIDseverity, has_cf, age_at_encounter)
+library(aod)
+library(ggplot2)
+library(mlbench)
+library(caret)
+library(InformationValue)
+library(ISLR)
+library(tidyverse)
+library(ggplot2)
+library(scales)
 ```
+
+DATA FRAMES
+-----------
+
+```{r}
+morb_df_01 <- d %>%
+  select(has_cf, COVIDseverity, starts_with('comorb'))
+
+colnames(morb_df_01) <- c('has_cf', 'COVIDseverity', 'bronchiectasis',
+                        'pulmonary_disease', 'asthma', 'nasal_polyps',
+                        'hemoptysis', 'pneumothorax', 'resp_failure', 
+                        'malnutrition', 'other_nutri_deficiency', 
+                        'type1_diabetes', 'type2_diabetes', 'obesity', 
+                        'liver_disease', 'other_GI_notLiver', 
+                        'essential_hypertension', 'hypertensive_heart_disease',
+                        'chronic_kidney_disease', 'nicotine_dependence', 
+                        'heart_failure', 'ischemic_heart_disease', 
+                        'lung_transplant')
+
+```
+
+```{r}
+#created altered data frame of morb_df to have severity to two levels
+morb_df_01 <- morb_df
+morb_df_01['COVIDseverity'][morb_df_01['COVIDseverity'] == 2] <- 1
+
+morb_df_01$COVIDseverity <- factor(morb_df_01$COVIDseverity, c(0,1))
+```
+
+```{r}
+morb_age <- morb_df_01
+```
+
+```{r}
+con_tab <- d %>% 
+  select(COVIDseverity, has_cf)
+```
+
+```{r}
+non_cf <- d %>%
+  filter(has_cf == 0)
+```
+
+```{r}
+ratetable <- con_tab %>% 
+  group_by(has_cf, COVIDseverity)
+```
+
+```{r}
+ratetable <- con_tab %>% 
+  group_by(has_cf, COVIDseverity) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round((N / sum(N)), 3))
+```
+
+```{r}
+treat_df <- d %>% 
+  select(has_cf, COVIDseverity, INOTROPES, REMDESIVIR, CCP,
+         DEXAMETHASONE, ENOXAPARIN, HEPARIN, IVIG,
+         METHYLPREDNISOLONE, RITUXIMAB, TOCILIZUMAB,
+         ASPIRIN, LOPINAVIR_OR_RITONAVIR)
+```
+
+----------
 
 ```{r}
 #contingency table, compares non-cf covid severity with race
@@ -47,25 +118,12 @@ con_tab %>%
 ```
 
 ```{r}
-ratetable <- con_tab %>% 
-  group_by(has_cf, COVIDseverity)
-```
-
-
-```{r}
 #contingency table, compares covid severity between cf and non-cf
   ratetable %>% 
   group_by(has_cf, COVIDseverity) %>% 
   summarize(N = n()) %>% 
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
-```
-
-```{r}
-ratetable <- con_tab %>% 
-  group_by(has_cf, COVIDseverity) %>% 
-  summarize(N = n()) %>% 
-  mutate(Ratio = round((N / sum(N)), 3))
 ```
 
 ```{r}
@@ -107,14 +165,6 @@ ggplot(con_tab) +
 ```
 
 ```{r}
-treat_df <- d %>% 
-  select(has_cf, COVIDseverity, INOTROPES, REMDESIVIR, CCP,
-         DEXAMETHASONE, ENOXAPARIN, HEPARIN, IVIG,
-         METHYLPREDNISOLONE, RITUXIMAB, TOCILIZUMAB,
-         ASPIRIN, LOPINAVIR_OR_RITONAVIR)
-```
-
-```{r}
   treat_df %>% 
   group_by(has_cf, COVIDseverity, INOTROPES) %>% 
   summarize(N = n()) %>% 
@@ -122,18 +172,7 @@ treat_df <- d %>%
   knitr::kable()
 ```
 
-
 Logistic Regression
-
-```{r}
-library(aod)
-library(ggplot2)
-library(mlbench)
-library(pROC)
-library(caret)
-library(InformationValue)
-library(ISLR)
-```
 
 ```{r}
 covsev01 <- d
@@ -167,17 +206,63 @@ morb_grouped <- morb_df_01
 ```
 
 ```{r}
-morb_grouped %>% 
+morb_grouped <- morb_df_01 %>% 
   mutate(
     respiratory_disease = case_when(
-      bronchiectasis == 1,
-      asthma == 1,
-      bronchiectasis ==0,
-      asthma == 0
+      bronchiectasis == 1|
+        pulmonary_disease == 1|
+        asthma == 1|
+        nasal_polyps == 1|
+        hemoptysis == 1|
+        pneumothorax == 1|
+        resp_failure == 1|
+        lung_transplant == 1~1,
+      bronchiectasis == 0&
+        pulmonary_disease == 0&
+        asthma == 0&
+        nasal_polyps == 0&
+        hemoptysis == 0&
+        pneumothorax == 0&
+        resp_failure == 0&
+        lung_transplant == 0~0),
+    
+    nutri_cond = case_when(
+      malnutrition == 1|
+        other_nutri_deficiency == 1|
+        obesity == 1~1,
+      malnutrition == 0&
+        other_nutri_deficiency == 0&
+        obesity == 0~0),
+    
+    diabetes = case_when(
+      type1_diabetes == 1|
+        type2_diabetes == 1~1,
+      type1_diabetes == 0&
+        type2_diabetes == 0~0),
+    
+    cardiac_dis = case_when(
+      heart_failure == 1|
+        hypertensive_heart_disease == 1|
+        ischemic_heart_disease == 1|
+        essential_hypertension == 1~1,
+      heart_failure == 0&
+        hypertensive_heart_disease == 0&
+        ischemic_heart_disease == 0&
+        essential_hypertension == 0~0),
+      
+      abdominal_cond = case_when(
+        liver_disease == 1|
+          other_GI_notLiver == 1|
+          chronic_kidney_disease == 1~1,
+        liver_disease == 0&
+          other_GI_notLiver == 0&
+          chronic_kidney_disease == 0~0),
+    
+    nicotine_dep = case_when(
+      nicotine_dependence == 1~1,
+      nicotine_dependence == 0~0)
     )
-  )
 ```
-
 
 ```{r}
 confint(model)
@@ -202,41 +287,3 @@ exp(cbind(OR = coef(model), confint(model)))
 ```{r}
 hist(model$fitted.values,main = " Histogram ",xlab = "Probability of 'pos' diabetes", col = 'light green')
 ```
-
-```{r}
-#created altered data frame of morb_df to have severity to two levels
-morb_df_01 <- morb_df
-morb_df_01['COVIDseverity'][morb_df_01['COVIDseverity'] == 2] <- 1
-
-morb_df_01$COVIDseverity <- factor(morb_df_01$COVIDseverity, c(0,1))
-```
-
-```{r}
-morb_age <- morb_df_01
-```
-
-```{r}
-morb_df_01 <- d %>%
-  select(has_cf, COVIDseverity, starts_with('comorb'))
-
-colnames(morb_df_01) <- c('has_cf', 'COVIDseverity', 'bronchiectasis',
-                        'pulmonary_disease', 'asthma', 'nasal_polyps',
-                        'hemoptysis', 'pneumothorax', 'resp_failure', 
-                        'malnutrition', 'other_nutri_deficiency', 
-                        'type1_diabetes', 'type2_diabetes', 'obesity', 
-                        'liver_disease', 'other_GI_notLiver', 
-                        'essential_hypertension', 'hypertensive_heart_disease',
-                        'chronic_kidney_disease', 'nicotine_dependence', 
-                        'heart_failure', 'ischemic_heart_disease', 
-                        'lung_transplant')
-
-```
-
-```{r}
-ggplot(morb_df_age, aes(x = age_at_encounter, y = hemoptysis)) + 
-  geom_point(alpha=.5) +
-  stat_smooth(method="glm", se=FALSE, method.args = list(family=binomial))
-```
-
-
-
