@@ -10,17 +10,14 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggplot2)
 library(scales)
-```
-
-```{r prop comp}
 # Need to always load the package though
 library(epitools)
 library(rmeta)
 library(pROC)
 library(nnet)
+```
 
-#####################################################
-#####################################################
+```{r prop comp}
 # This is the prop.comp() function we will use
 #######
 prop.comp <- function( x, estimate="all", conf.level=.95, transpose=FALSE ){
@@ -56,7 +53,6 @@ prop.comp <- function( x, estimate="all", conf.level=.95, transpose=FALSE ){
 	else return(rslt)
 }
 ```
-
 
 ## Part 1
 
@@ -800,7 +796,7 @@ nonsub_df %>%
   knitr::kable()
 ```
 
-#Part 4
+## Part 4
 
 ```{r}
 con_tab <- d %>% 
@@ -1203,25 +1199,14 @@ table(d$ethnicity,d$encountertype)
 
 ```{r}
 # Medication 1
-table(d$COVIDseverity,d$INOTROPES)
-```
-```{r}
-# cf
-cf_intropes <- table(cf$COVIDseverity,cf$INOTROPES)
-mosaicplot(cf_intropes)
-```
-```{r}
-fisher.test(cf_intropes)
-chisq.test(cf_intropes)
-```
-```{r}
 # non cf
-non_cf_intropes <- table(non_cf$COVIDseverity,non_cf$INOTROPES)
-mosaicplot(non_cf_intropes)
+table(non_cf$COVIDseverity,non_cf$INOTROPES)
+# cf
+table(cf$COVIDseverity,cf$INOTROPES)
 ```
 
 ```{r}
-# contingency table comparing COVID severity and medication INOTROPES
+# contingency table comparing COVID severity and medication INOTROPES cf vs. non cf 
 cf %>% 
   group_by(COVIDseverity, INOTROPES) %>% 
   summarize(N = n()) %>% 
@@ -1237,15 +1222,22 @@ non_cf %>%
 ```
 
 ```{r}
-table(d$COVIDseverity,d$REMDESIVIR)
+# Medication 2
+# non cf
+table(non_cf$COVIDseverity,non_cf$REMDESIVIR)
+# cf
+table(cf$COVIDseverity,cf$REMDESIVIR)
 ```
+
 ```{r}
+# contingency table comparing COVID severity and medication REMDESIVIR cf vs. non cf 
 cf %>% 
   group_by(COVIDseverity, REMDESIVIR) %>% 
   summarize(N = n()) %>% 
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
 ```
+
 ```{r}
 non_cf %>% 
   group_by(COVIDseverity, REMDESIVIR) %>% 
@@ -1253,10 +1245,17 @@ non_cf %>%
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
 ```
+
 ```{r}
-table(d$COVIDseverity,d$CCP)
+# Medication 3
+# non cf
+table(non_cf$COVIDseverity,non_cf$CCP)
+# cf
+table(cf$COVIDseverity,cf$CCP)
 ```
+
 ```{r}
+# contingency table comparing COVID severity and medication CCP cf vs. non cf 
 cf %>% 
   group_by(COVIDseverity, CCP) %>% 
   summarize(N = n()) %>% 
@@ -1270,10 +1269,17 @@ non_cf %>%
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
 ```
+
 ```{r}
-table(d$COVIDseverity,d$DEXAMETHASONE)
+# Medication 4
+# non cf
+table(non_cf$COVIDseverity,non_cf$DEXAMETHASONE)
+# cf
+table(cf$COVIDseverity,cf$DEXAMETHASONE)
 ```
+
 ```{r}
+# contingency table comparing COVID severity and medication DEXAMETHASONE cf vs. non cf 
 cf %>% 
   group_by(COVIDseverity, DEXAMETHASONE) %>% 
   summarize(N = n()) %>% 
@@ -1287,10 +1293,17 @@ non_cf %>%
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
 ```
+
 ```{r}
-table(d$COVIDseverity,d$ENOXAPARIN)
+# Medication 5
+# non cf
+table(non_cf$COVIDseverity,non_cf$ENOXAPARIN)
+# cf
+table(cf$COVIDseverity,cf$ENOXAPARIN)
 ```
+
 ```{r}
+# contingency table comparing COVID severity and medication ENOXAPARIN cf vs. non cf 
 cf %>% 
   group_by(COVIDseverity, ENOXAPARIN) %>% 
   summarize(N = n()) %>% 
@@ -1304,10 +1317,17 @@ non_cf %>%
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
 ```
+
 ```{r}
-table(d$COVIDseverity,d$HEPARIN)
+# Medication 6
+# non cf
+table(non_cf$COVIDseverity,non_cf$HEPARIN)
+# cf
+table(cf$COVIDseverity,cf$HEPARIN)
 ```
+
 ```{r}
+# contingency table comparing COVID severity and medication HEPARIN cf vs. non cf 
 cf %>% 
   group_by(COVIDseverity, HEPARIN) %>% 
   summarize(N = n()) %>% 
@@ -1321,10 +1341,17 @@ non_cf %>%
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
 ```
+
 ```{r}
-table(d$COVIDseverity,d$IVIG)
+# Medication 7
+# non cf
+table(non_cf$COVIDseverity,non_cf$IVIG)
+# cf
+table(cf$COVIDseverity,cf$IVIG)
 ```
+
 ```{r}
+# contingency table comparing COVID severity and medication IVIG cf vs. non cf 
 cf %>% 
   group_by(COVIDseverity, IVIG) %>% 
   summarize(N = n()) %>% 
@@ -1338,10 +1365,17 @@ non_cf %>%
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
 ```
+
 ```{r}
-table(d$COVIDseverity,d$METHYLPREDNISOLONE)
+# Medication 8
+# non cf
+table(non_cf$COVIDseverity,non_cf$METHYLPREDNISOLONE)
+# cf
+table(cf$COVIDseverity,cf$METHYLPREDNISOLONE)
 ```
+
 ```{r}
+# contingency table comparing COVID severity and medication METHYLPREDNISOLONE cf vs. non cf 
 cf %>% 
   group_by(COVIDseverity, METHYLPREDNISOLONE) %>% 
   summarize(N = n()) %>% 
@@ -1355,10 +1389,17 @@ non_cf %>%
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
 ```
+
 ```{r}
-table(d$COVIDseverity,d$RITUXIMAB)
+# Medication 9
+# non cf
+table(non_cf$COVIDseverity,non_cf$RITUXIMAB)
+# cf
+table(cf$COVIDseverity,cf$RITUXIMAB)
 ```
+
 ```{r}
+# contingency table comparing COVID severity and medication RITUXIMAB cf vs. non cf 
 cf %>% 
   group_by(COVIDseverity, RITUXIMAB) %>% 
   summarize(N = n()) %>% 
@@ -1372,10 +1413,17 @@ non_cf %>%
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
 ```
+
 ```{r}
-table(d$COVIDseverity,d$TOCILIZUMAB)
+# Medication 10
+# non cf
+table(non_cf$COVIDseverity,non_cf$TOCILIZUMAB)
+# cf
+table(cf$COVIDseverity,cf$TOCILIZUMAB)
 ```
+
 ```{r}
+# contingency table comparing COVID severity and medication TOCILIZUMAB cf vs. non cf 
 cf %>% 
   group_by(COVIDseverity, TOCILIZUMAB) %>% 
   summarize(N = n()) %>% 
@@ -1389,10 +1437,17 @@ non_cf %>%
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
 ```
+
 ```{r}
-table(d$COVIDseverity,d$ASPIRIN)
+# Medication 11
+# non cf
+table(non_cf$COVIDseverity,non_cf$ASPIRIN)
+# cf
+table(cf$COVIDseverity,cf$ASPIRIN)
 ```
+
 ```{r}
+# contingency table comparing COVID severity and medication ASPIRIN cf vs. non cf 
 cf %>% 
   group_by(COVIDseverity, ASPIRIN) %>% 
   summarize(N = n()) %>% 
@@ -1406,10 +1461,17 @@ non_cf %>%
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
 ```
+
 ```{r}
-table(d$COVIDseverity,d$LOPINAVIR_OR_RITONAVIR)
+# Medication 12
+# non cf
+table(non_cf$COVIDseverity,non_cf$LOPINAVIR_OR_RITONAVIR)
+# cf
+table(cf$COVIDseverity,cf$LOPINAVIR_OR_RITONAVIR)
 ```
+
 ```{r}
+# contingency table comparing COVID severity and medication LOPINAVIR_OR_RITONAVIR cf vs. non cf 
 cf %>% 
   group_by(COVIDseverity, LOPINAVIR_OR_RITONAVIR) %>% 
   summarize(N = n()) %>% 
@@ -1422,6 +1484,14 @@ non_cf %>%
   summarize(N = n()) %>% 
   mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
   knitr::kable()
+```
+
+```{r}
+treatment <- d %>% 
+  select(INOTROPES,REMDESIVIR,CCP,
+         DEXAMETHASONE,ENOXAPARIN,HEPARIN,IVIG,
+         METHYLPREDNISOLONE,RITUXIMAB,TOCILIZUMAB,
+         ASPIRIN,LOPINAVIR_OR_RITONAVIR)
 ```
 
 
