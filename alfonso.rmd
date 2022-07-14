@@ -56,7 +56,7 @@ prop.comp <- function( x, estimate="all", conf.level=.95, transpose=FALSE ){
 ```
 
 
-## Part 1
+## EDA Analysis
 
 ```{r morbidity Tables}
 #table with severity, cf and comorbidities NOTE: Changed names for readability
@@ -257,6 +257,148 @@ num_morb_perCF <- prop1(num_morb_perCF, 9337)
 num_morb_perNonCF <- prop1(num_morb_perNonCF, 916615)
 ```
 
-```{r logit}
+## Modeling Proposals
+
 summary(glm(has_cf~comorb_bronchiectasis_J47, family = binomial(link='identity'), data = d))
+
+
+```{r severity changed}
+#created altered data frame of morb_df to have severity to two levels
+morb_df_01 <- morb_df
+morb_df_01['COVIDseverity'][morb_df_01['COVIDseverity'] == 2] <- 1
+morb_df_01$COVIDseverity <- factor(morb_df_01$COVIDseverity, c(0,1))
 ```
+
+
+```{r group morbids}
+morb_grouped <- morb_df_01 %>% 
+  mutate(
+    respiratory_disease = case_when(
+      bronchiectasis == 1|
+        pulmonary_disease == 1|
+        asthma == 1|
+        nasal_polyps == 1|
+        hemoptysis == 1|
+        pneumothorax == 1|
+        resp_failure == 1|
+        lung_transplant == 1~1,
+      bronchiectasis == 0&
+        pulmonary_disease == 0&
+        asthma == 0&
+        nasal_polyps == 0&
+        hemoptysis == 0&
+        pneumothorax == 0&
+        resp_failure == 0&
+        lung_transplant == 0~0),
+    
+    nutri_cond = case_when(
+      malnutrition == 1|
+        other_nutri_deficiency == 1|
+        obesity == 1~1,
+      malnutrition == 0&
+        other_nutri_deficiency == 0&
+        obesity == 0~0),
+    
+    diabetes = case_when(
+      type1_diabetes == 1|
+        type2_diabetes == 1~1,
+      type1_diabetes == 0&
+        type2_diabetes == 0~0),
+    
+    cardiac_dis = case_when(
+      heart_failure == 1|
+        hypertensive_heart_disease == 1|
+        ischemic_heart_disease == 1|
+        essential_hypertension == 1~1,
+      heart_failure == 0&
+        hypertensive_heart_disease == 0&
+        ischemic_heart_disease == 0&
+        essential_hypertension == 0~0),
+      
+      abdominal_cond = case_when(
+        liver_disease == 1|
+          other_GI_notLiver == 1|
+          chronic_kidney_disease == 1~1,
+        liver_disease == 0&
+          other_GI_notLiver == 0&
+          chronic_kidney_disease == 0~0),
+    
+    nicotine_dep = case_when(
+      nicotine_dependence == 1~1,
+      nicotine_dependence == 0~0)
+    )
+
+morb_grouped <- morb_grouped %>%
+  select(1:2, 24:29)
+```
+
+```{r glm full model}
+summary(glm(COVIDseverity~., family = binomial(link='logit'), 
+            data = morb_grouped))
+```
+
+```{r sub_df of morb_grouops without diabetes}
+no_diab_morb <- morb_grouped %>%
+  select(-diabetes)
+```
+
+```{r logit model sub_df}
+model_morb <-
+glm(COVIDseverity~., family = binomial(link='logit'), 
+            data = no_diab_morb)
+
+summary(model_morb)
+```
+```{r}
+a=seq(1,925952,1)
+b=sample(a,740762,replace = F)
+no_diab_morb_train=no_diab_morb[b,]
+no_diab_morb_test=no_diab_morb[-b,]
+no_diab_morb_train %>% filter(has_cf == 1) %>% count()
+```
+
+```{r}
+no_diab_fitted <- glm(COVIDseverity ~ ., family = binomial(link='logit'), data = no_diab_morb_train)
+```
+
+```{r}
+no_diab_predict_fit = no_diab_fitted %>% predict(no_diab_morb_test, type="response")
+```
+
+```{r}
+predicted_severity2 <- ifelse(no_diab_predict_fit > 0.5, 1,0)
+```
+
+```{r}
+counter=0
+for(i in 1:185190)
+{
+  if(predicted_severity2[i] != no_diab_morb_test$COVIDseverity[i])
+  {counter=counter+1}
+}
+counter
+misclassification.rate=counter/185190
+misclassification.rate
+```
+
+
+```{r grapg log}
+ggplot(no_diab_morb_test, aes(x = respiratory_disease, y = no_diab_predict_fit)) +
+  geom_boxplot(aes(fill = factor(has_cf)), alpha = 1)
+```
+
+```{r roc curve}
+roc_score = roc(no_diab_morb_test$COVIDseverity, predicted_severity2)
+```
+
+```{r }
+plot(roc_score, main="ROC curve -- Logistic Regression ")
+```
+
+```{r 2nd roc}
+library(ROCit)
+## Warning: package 'ROCit' was built under R version 3.5.2
+ROCit_obj <- rocit(score=predicted_severity2,class=no_diab_morb_test$COVIDseverity)
+plot(ROCit_obj)
+```
+
