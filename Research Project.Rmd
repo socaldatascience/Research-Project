@@ -1,10 +1,6 @@
 ---
 title: "Child Patients with Covid-19 and Cystic Fibrosis"
-<<<<<<< HEAD
-author: "Alfonso Vieyra"
-=======
 author: "Alfonso Vieyra, Brandon Huett, Alison Cher, Brittnie Villasenor, Ernesto Collazo"
->>>>>>> 38de210d0b32a43c0da3a96d36d162a26fecf93a
 date: '2022-06-30'
 output: html_document
 ---
