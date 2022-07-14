@@ -1414,12 +1414,11 @@ non_cf %>%
 ```
 
 ```{r}
-d %>% 
-  select(has_cf,COVIDseverity,INOTROPES,REMDESIVIR,CCP,
+treatment <- d %>% 
+  select(INOTROPES,REMDESIVIR,CCP,
          DEXAMETHASONE,ENOXAPARIN,HEPARIN,IVIG,
          METHYLPREDNISOLONE,RITUXIMAB,TOCILIZUMAB,
-         ASPIRIN,LOPINAVIR_OR_RITONAVIR) %>% 
-  glimpse()
+         ASPIRIN,LOPINAVIR_OR_RITONAVIR)
 ```
 
 
