@@ -387,3 +387,18 @@ ggplot(no_diab_morb_test, aes(x = respiratory_disease, y = no_diab_predict_fit))
   geom_boxplot(aes(fill = factor(has_cf)), alpha = 1)
 ```
 
+```{r roc curve}
+roc_score = roc(no_diab_morb_test$COVIDseverity, predicted_severity2)
+```
+
+```{r }
+plot(roc_score, main="ROC curve -- Logistic Regression ")
+```
+
+```{r 2nd roc}
+library(ROCit)
+## Warning: package 'ROCit' was built under R version 3.5.2
+ROCit_obj <- rocit(score=predicted_severity2,class=no_diab_morb_test$COVIDseverity)
+plot(ROCit_obj)
+```
+
