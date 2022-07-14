@@ -906,6 +906,10 @@ Logistic Regression
 ```{r}
 library(aod)
 library(ggplot2)
+library(mlbench)
+library(MASS)
+library(pROC)
+
 ```
 
 ```{r}
@@ -941,19 +945,32 @@ confint.default(model)
 ```
 
 ```{r}
+wald.test(b = coef(model), Sigma = vcov(model), Terms = 1:2)
+```
+
+```{r}
 exp(coef(model))
 ```
+
 ```{r}
 exp(cbind(OR = coef(model), confint(model)))
 ```
 
 ```{r}
-wald.test(b = coef(model), Sigma = vcov(model), Terms = 1:2)
+model_2 <- stepAIC(model)
 ```
+
+
+```{r}
+hist(model_2$fitted.values,main = " Histogram ",xlab = "Probability of 'pos' diabetes", col = 'light green')
+```
+
+
+
 
 ```{r}
 ggplot(covid_data2, aes(x = has_cf, y = COVIDseverity)) + geom_ribbon(aes(ymin = LL,
-    ymax = UL, fill = rank), alpha = 0.2) + geom_line(aes(colour = rank),
+    ymax = UL, fill = age_at_encounter), alpha = 0.2) + geom_line(aes(colour = rank),
     size = 1)
 ```
 
