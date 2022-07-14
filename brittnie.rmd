@@ -1,1 +1,583 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+## Part 5
+```{r}
+library(tidyverse)
+library(ggplot2)
+```
+
+```{r}
+non_cf <- d %>%
+  filter(has_cf == 0)
+```
+
+```{r}
+cf <- d %>%
+  filter(has_cf == 1)
+```
+
+```{r}
+non_cf %>% 
+  ggplot(aes(x=COVIDseverity)) +
+  geom_bar(fill = "magenta")
+```
+```{r}
+  d %>% 
+  select(has_cf, COVIDseverity) %>% 
+  table()
+```
+```{r}
+non_cf %>% 
+  select(age_at_encounter, ethnicity) %>% 
+  table()
+```
+```{r}
+non_cf %>%
+ group_by(COVIDseverity) %>%
+ count()
+```
+```{r}
+non_cf %>% 
+  select(COVIDseverity, ethnicity) %>% 
+  table()
+```
+```{r}
+non_cf %>% 
+  select(COVIDseverity, zip_code) %>% 
+  table()
+```
+```{r}
+non_cf %>% 
+  select(COVIDseverity, race) %>% 
+  table()
+```
+```{r}
+non_cf %>% 
+  select(COVIDseverity, encountertype) %>% 
+  table()
+```
+```{r}
+non_cf %>% 
+  ggplot(aes(x=COVIDseverity,
+             y=age_at_encounter, fill = COVIDseverity)) +
+  geom_boxplot() +
+  labs(x = "COVID Severity", 
+       y = "Age at Encounter", 
+       title = "COVID Severity among children without Cystic Fibrosis") +
+  scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"))
+```
+```{r}
+non_cf %>% 
+  ggplot(aes(x=COVIDseverity, fill = race)) +
+  geom_bar()
+```
+```{r}
+d %>% 
+  ggplot(aes(x=COVIDseverity,
+             y=age_at_encounter, 
+             fill = has_cf)) +
+  geom_boxplot() +
+  labs(x = "COVID Severity", y = "Age at Encounter") +
+  ggtitle("COVID Severity Among Children based on Age") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_manual(values =c("#E69F00","#009E73"), 
+                    labels = c("Non CF","CF"), 
+                    name = "Cystic Fibrosis Diagnosis") +
+  scale_x_discrete(breaks=c("0", "1","2"),
+                      labels=c("AsymptomaticMild", "Moderate","Severe"))
+```
+```{r}
+non_cf %>% 
+  ggplot(aes(x=race, fill = COVIDseverity)) +
+  geom_bar(position = "dodge") + 
+  coord_flip() +
+  labs(x = "Race", y = "Count") +
+  ggtitle("COVID Severity Among Children based on Race", subtitle = "Non Cystic Fibrosis") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle=element_text(hjust=0.5)) +
+  scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"), 
+                    labels = c("Asymptomatic","Moderate","Severe"),
+                    name = "COVID Severity") +
+  scale_y_continuous(labels = comma)
+```
+```{r}
+cf %>% 
+  ggplot(aes(x=race, fill = COVIDseverity)) +
+  geom_bar(position = "dodge") + 
+  coord_flip() +
+  labs(x = "Race", y = "Count") +
+  ggtitle("COVID Severity Among Children based on Race",
+          subtitle = "Cystic Fibrosis") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle=element_text(hjust=0.5)) +
+  scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"), 
+                    labels = c("Asymptomatic","Moderate","Severe"),
+                    name = "COVID Severity") +
+  scale_y_continuous(labels = comma)
+```
+
+```{r}
+non_cf %>% 
+  ggplot(aes(x=ethnicity, fill = COVIDseverity)) +
+  geom_bar(position = "dodge") +
+  labs(x = "Ethnicity", y = "Count") +
+  ggtitle("COVID Severity Among Children based on Ethnicity",
+          subtitle = "Non Cystic Fibrosis") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle=element_text(hjust=0.5)) +
+  scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"), 
+                    labels = c("Asymptomatic","Moderate","Severe"),
+                    name = "COVID Severity") +
+  scale_y_continuous(labels = comma) 
+```
+```{r}
+cf %>% 
+  ggplot(aes(x=ethnicity, fill = COVIDseverity)) +
+  geom_bar(position = "dodge") +
+  labs(x = "Ethnicity", y = "Count") +
+  ggtitle("COVID Severity Among Children based on Ethnicity",
+          subtitle = "Cystic Fibrosis") +
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle=element_text(hjust=0.5)) +
+  scale_fill_manual(values =c("#E69F00","#009E73","#56B4E9"), 
+                    labels = c("Asymptomatic","Moderate","Severe"),
+                    name = "COVID Severity") +
+  scale_y_continuous(labels = comma)
+```
+
+```{r}
+d %>% 
+  ggplot(aes(x=encountertype, 
+             fill = has_cf)) +
+  geom_bar(position = "dodge") +
+  labs(x = "Type of Encounter", y = "Count") +
+  ggtitle("COVID Severity Among Children based on Type of Encounter") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_fill_manual(values =c("#E69F00","#009E73"), 
+                    labels = c("Non CF","CF"), 
+                    name = "Cystic Fibrosis Diagnosis") +
+  coord_flip() +
+  scale_y_continuous(labels = comma)
+```
+```{r}
+table(d$ethnicity,d$has_cf)
+```
+```{r}
+table(d$race,d$COVIDseverity)
+```
+
+X AXIS 3 CATEGORIES Y AXIS 2 CATEGORIES
+```{r}
+table(d$ethnicity,d$encountertype)
+```
+
+```{r}
+# Medication 1
+# non cf
+table(non_cf$COVIDseverity,non_cf$INOTROPES)
+# cf
+table(cf$COVIDseverity,cf$INOTROPES)
+```
+
+```{r}
+# contingency table comparing COVID severity and medication INOTROPES cf vs. non cf 
+cf %>% 
+  group_by(COVIDseverity, INOTROPES) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, INOTROPES) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
+# Medication 2
+# non cf
+table(non_cf$COVIDseverity,non_cf$REMDESIVIR)
+# cf
+table(cf$COVIDseverity,cf$REMDESIVIR)
+```
+
+```{r}
+# contingency table comparing COVID severity and medication REMDESIVIR cf vs. non cf 
+cf %>% 
+  group_by(COVIDseverity, REMDESIVIR) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, REMDESIVIR) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
+# Medication 3
+# non cf
+table(non_cf$COVIDseverity,non_cf$CCP)
+# cf
+table(cf$COVIDseverity,cf$CCP)
+```
+
+```{r}
+# contingency table comparing COVID severity and medication CCP cf vs. non cf 
+cf %>% 
+  group_by(COVIDseverity, CCP) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, CCP) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
+# Medication 4
+# non cf
+table(non_cf$COVIDseverity,non_cf$DEXAMETHASONE)
+# cf
+table(cf$COVIDseverity,cf$DEXAMETHASONE)
+```
+
+```{r}
+# contingency table comparing COVID severity and medication DEXAMETHASONE cf vs. non cf 
+cf %>% 
+  group_by(COVIDseverity, DEXAMETHASONE) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, DEXAMETHASONE) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
+# Medication 5
+# non cf
+table(non_cf$COVIDseverity,non_cf$ENOXAPARIN)
+# cf
+table(cf$COVIDseverity,cf$ENOXAPARIN)
+```
+
+```{r}
+# contingency table comparing COVID severity and medication ENOXAPARIN cf vs. non cf 
+cf %>% 
+  group_by(COVIDseverity, ENOXAPARIN) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, ENOXAPARIN) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
+# Medication 6
+# non cf
+table(non_cf$COVIDseverity,non_cf$HEPARIN)
+# cf
+table(cf$COVIDseverity,cf$HEPARIN)
+```
+
+```{r}
+# contingency table comparing COVID severity and medication HEPARIN cf vs. non cf 
+cf %>% 
+  group_by(COVIDseverity, HEPARIN) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, HEPARIN) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
+# Medication 7
+# non cf
+table(non_cf$COVIDseverity,non_cf$IVIG)
+# cf
+table(cf$COVIDseverity,cf$IVIG)
+```
+
+```{r}
+# contingency table comparing COVID severity and medication IVIG cf vs. non cf 
+cf %>% 
+  group_by(COVIDseverity, IVIG) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, IVIG) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
+# Medication 8
+# non cf
+table(non_cf$COVIDseverity,non_cf$METHYLPREDNISOLONE)
+# cf
+table(cf$COVIDseverity,cf$METHYLPREDNISOLONE)
+```
+
+```{r}
+# contingency table comparing COVID severity and medication METHYLPREDNISOLONE cf vs. non cf 
+cf %>% 
+  group_by(COVIDseverity, METHYLPREDNISOLONE) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, METHYLPREDNISOLONE) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
+# Medication 9
+# non cf
+table(non_cf$COVIDseverity,non_cf$RITUXIMAB)
+# cf
+table(cf$COVIDseverity,cf$RITUXIMAB)
+```
+
+```{r}
+# contingency table comparing COVID severity and medication RITUXIMAB cf vs. non cf 
+cf %>% 
+  group_by(COVIDseverity, RITUXIMAB) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, RITUXIMAB) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
+# Medication 10
+# non cf
+table(non_cf$COVIDseverity,non_cf$TOCILIZUMAB)
+# cf
+table(cf$COVIDseverity,cf$TOCILIZUMAB)
+```
+
+```{r}
+# contingency table comparing COVID severity and medication TOCILIZUMAB cf vs. non cf 
+cf %>% 
+  group_by(COVIDseverity, TOCILIZUMAB) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, TOCILIZUMAB) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
+# Medication 11
+# non cf
+table(non_cf$COVIDseverity,non_cf$ASPIRIN)
+# cf
+table(cf$COVIDseverity,cf$ASPIRIN)
+```
+
+```{r}
+# contingency table comparing COVID severity and medication ASPIRIN cf vs. non cf 
+cf %>% 
+  group_by(COVIDseverity, ASPIRIN) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, ASPIRIN) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
+# Medication 12
+# non cf
+table(non_cf$COVIDseverity,non_cf$LOPINAVIR_OR_RITONAVIR)
+# cf
+table(cf$COVIDseverity,cf$LOPINAVIR_OR_RITONAVIR)
+```
+
+```{r}
+# contingency table comparing COVID severity and medication LOPINAVIR_OR_RITONAVIR cf vs. non cf 
+cf %>% 
+  group_by(COVIDseverity, LOPINAVIR_OR_RITONAVIR) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+```{r}
+non_cf %>% 
+  group_by(COVIDseverity, LOPINAVIR_OR_RITONAVIR) %>% 
+  summarize(N = n()) %>% 
+  mutate(Ratio = round(100*(N / sum(N)), 1), "%") %>% 
+  knitr::kable()
+```
+
+```{r}
+treatment <- d %>% 
+  select(INOTROPES,REMDESIVIR,CCP,
+         DEXAMETHASONE,ENOXAPARIN,HEPARIN,IVIG,
+         METHYLPREDNISOLONE,RITUXIMAB,TOCILIZUMAB,
+         ASPIRIN,LOPINAVIR_OR_RITONAVIR)
+```
+
+## Week 3: Modeling Proposals and initial model implementation
+
+```{r}
+# Select certain columns in original data set to compare all medications including has_cf and COVIDseverity
+med <- d %>% 
+  select(has_cf, COVIDseverity, INOTROPES,REMDESIVIR,CCP,
+         DEXAMETHASONE,ENOXAPARIN,HEPARIN,IVIG,
+         METHYLPREDNISOLONE,RITUXIMAB,TOCILIZUMAB,
+         ASPIRIN,LOPINAVIR_OR_RITONAVIR)
+```
+
+```{r}
+# Group medications into 5 different categories to simplify data 
+med <- med %>% mutate(
+    anticoagulant = case_when(
+      ENOXAPARIN == 1 | HEPARIN == 1 ~ 1,
+      ENOXAPARIN == 0 & HEPARIN == 0 ~ 0),
+    
+    anti_inflammatory = case_when(
+      DEXAMETHASONE == 1 | METHYLPREDNISOLONE == 1 | 
+        TOCILIZUMAB == 1 | ASPIRIN == 1 ~ 1,
+      DEXAMETHASONE == 0 & METHYLPREDNISOLONE == 0 & 
+        TOCILIZUMAB == 0 & ASPIRIN == 0 ~ 0),
+    
+    antiviral = case_when(
+      REMDESIVIR == 1 | LOPINAVIR_OR_RITONAVIR == 1 ~ 1,
+      REMDESIVIR == 0 & LOPINAVIR_OR_RITONAVIR == 0 ~ 0),
+    
+    immuno = case_when(
+      CCP == 1 | IVIG == 1 | RITUXIMAB == 1 ~ 1,
+      CCP == 0 & IVIG == 0 & RITUXIMAB == 0 ~ 0),
+    
+    inotrope = case_when(
+      INOTROPES == 1 ~ 1,
+      INOTROPES == 0 ~ 0)
+  )
+```
+
+```{r}
+# New variable for grouped medication categories
+med_group <- med %>% 
+  select(COVIDseverity, has_cf, anticoagulant, anti_inflammatory,
+         antiviral, immuno, inotrope)
+```
+
+```{r}
+# Transformed COVID severity to binomial by combining severity levels 1 & 2
+med_group["COVIDseverity"][med_group["COVIDseverity"] == 2] <- 1
+med_group$COVIDseverity <- factor(med_group$COVIDseverity, c(0,1))
+```
+
+```{r}
+# Test 1 of glm model for all five categories of med_group
+med_log <- glm(COVIDseverity ~., family = binomial(link = 'logit'), data = med_group)
+```
+```{r}
+# Summary for test 1 of glm model 
+summary(med_log)
+pander::pander(med_log)
+```
+```{r}
+confint(med_log)
+```
+
+```{r}
+# Test 2 of glm model for anticoagulant/antiviral/anti_inflammatory of med_group
+glm(COVIDseverity ~ anticoagulant + antiviral + anti_inflammatory, family = binomial(link = 'logit'), data = med_group)
+```
+```{r}
+# Summary for test 2 of glm model
+summary(glm(COVIDseverity ~ anticoagulant + antiviral + anti_inflammatory, family = binomial(link = 'logit'), data = med_group))
+```
+```{r}
+# Test 3 of glm model for immuno/inotrope of med_group
+glm(COVIDseverity ~ immuno + inotrope, family = binomial(link = 'logit'), data = med_group)
+```
+```{r}
+# Summary for test 3 of glm model
+summary(glm(COVIDseverity ~ immuno + inotrope, family = binomial(link = 'logit'), data = med_group))
+```
+```{r}
+# Test 4 of glm model for anticoagulant/antiviral/anti_inflammatory/inotrope of med_group
+glm(COVIDseverity ~ anticoagulant + antiviral + anti_inflammatory + inotrope, family = binomial(link = 'logit'), data = med_group)
+```
+```{r}
+# Summary for test 4 of glm model
+summary(glm(COVIDseverity ~ anticoagulant + antiviral + anti_inflammatory + inotrope, family = binomial(link = 'logit'), data = med_group))
+```
+```{r}
+# Test 5 of glm model for anticoagulant/antiviral/anti_inflammatory/immuno of med_group
+glm(COVIDseverity ~ anticoagulant + antiviral + anti_inflammatory + immuno, family = binomial(link = 'logit'), data = med_group)
+```
+```{r}
+# Summary for test 5 of glm model
+summary(glm(COVIDseverity ~ anticoagulant + antiviral + anti_inflammatory + immuno, family = binomial(link = 'logit'), data = med_group))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
