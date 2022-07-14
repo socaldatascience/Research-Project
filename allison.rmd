@@ -166,6 +166,43 @@ med_full$COVIDseverity <- factor(med_full$COVIDseverity, c(0,1))
 
 ```{r}
 #run glm to predict covid severity
-glm(COVIDseverity ~., family = binomial(link='logit'), data = med_full)
+summary(glm(COVIDseverity ~., family = binomial(link='logit'), data = med_full))
+```
+
+```{r}
+summary(glm(COVIDseverity ~ anti_inflammatory+immuno+antiviral, family = binomial(link='logit'), data = med_full))
+```
+
+```{r}
+a=seq(1,925952,1)
+b=sample(a,740762,replace = F)
+med_full_train=med_full[b,]
+med_full_test=med_full[-b,]
+med_full_train %>% filter(has_cf == 1) %>% count()
+```
+
+```{r}
+log_fit_med_full <- glm(COVIDseverity ~ ., family = binomial(link='logit'), data = med_full_train)
+
+```
+
+```{r}
+predict_fit = log_fit_med_full %>% predict(med_full_test, type="response")
+```
+
+```{r}
+predicted_severity <- ifelse(predict_fit > 0.5, 1,0)
+```
+
+```{r}
+counter=0
+for(i in 1:185190)
+{
+  if(predicted_severity[i] != med_full_test$COVIDseverity[i])
+  {counter=counter+1}
+}
+counter
+misclassification.rate=counter/185190
+misclassification.rate
 ```
 
