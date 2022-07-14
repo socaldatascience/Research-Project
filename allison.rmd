@@ -1,0 +1,208 @@
+## Part 2
+```{r}
+library(lubridate)
+```
+
+```{r}
+#create subset of just non cf patients
+non_cf <- d %>% filter(has_cf == 0)
+View(non_cf)
+```
+
+```{r}
+##type of treatment determines covidseverity (0,1,2)
+severity <- d %>% select(personid, COVIDseverity, ECMO, HFNC, NC, bipapCpapNonInvasive, invasiveMechVentilation)
+view(severity)
+```
+
+```{r}
+#counts of severity level based on cf and non cf patients
+ggplot(d, aes(x=COVIDseverity, fill = has_cf)) + geom_bar(position = "dodge")
+```
+
+```{r}
+#create subset that includes admission and discharge date/time for all patients
+duration <- d %>% select(servicedate, dischargedate)
+```
+
+```{r}
+#get rid of the letter "T" and "Z" in the service date column.
+duration$servicedate <- gsub("T"," ", duration$servicedate)
+duration$servicedate <- gsub("Z"," ", duration$servicedate)
+```
+
+```{r}
+#Get rid of the letter "T" and "Z" in the discharge date column.
+duration$dischargedate <- gsub("T", " ", duration$dischargedate)
+duration$dischargedate <- gsub("Z", " ", duration$dischargedate)
+```
+
+```{r}
+#Get rid of ".000" in both columns.
+duration$servicedate <- gsub(".000"," ", duration$servicedate)
+duration$dischargedate <- gsub(".000"," ", duration$dischargedate)
+```
+
+```{r}
+#Transform dates stored as character or numeric vectors to POSIXct objects. 
+duration$servicedate <- ymd_hms(duration$servicedate)
+duration$dischargedate <- ymd_hms(duration$dischargedate)
+```
+
+```{r}
+#Subtract discharge date by service date to find length of hospital stay in seconds.
+duration$diffsecs <- duration$dischargedate-duration$servicedate
+```
+
+```{r}
+#Calculate the length of hospital stay in minutes. Create column for minutes.
+duration$diffmins=(duration$dischargedate-duration$servicedate)/60
+duration$diffmins <- gsub("secs","mins", duration$diffmins)
+```
+
+```{r}
+#Calulate the length of hospital stay in hours
+duration$diffhrs=(duration$dischargedate-duration$servicedate)/3600
+```
+
+```{r}
+#Attach "has_cf" column from d dataset to duration subset
+duration$has_cf = d$has_cf
+```
+
+```{r}
+#Filter the length of time for cf and non cf patients.
+time_non_cf <- duration %>% filter(has_cf == 0)
+time_has_cf <- duration %>% filter(has_cf == 1)
+```
+
+
+```{r}
+#non_cf: convert diffmins from character to numeric variable. convert diffhours to numeric.
+time_non_cf <- time_non_cf %>% mutate(diffmins=as.numeric(diffmins))
+time_non_cf <- time_non_cf %>% mutate(diffhrs=as.numeric(diffhrs))
+```
+
+```{r}
+#has_cf: convert diffmins from character to numeric variable. convert diffhours to numeric.
+time_has_cf <- time_has_cf %>% mutate(diffmins = as.numeric(diffmins))
+time_has_cf <- time_has_cf %>% mutate(diffhrs = as.numeric(diffhrs))
+```
+
+```{r}
+#get rid of NA values in time_has_cf subset.
+time_has_cf <- na.omit(time_has_cf)
+```
+
+```{r}
+#make any negative values in time_non_cf subset to NA. Get rid of NA values.
+time_non_cf[time_non_cf < 0] <- NA
+time_non_cf <- na.omit(time_non_cf)
+```
+
+```{r}
+#histogram of hours cf children spent at the hospital. does not include outliers. hours limited to 700 for visibility.
+plot_has_cf_lim <- ggplot(time_has_cf, aes(x=diffhrs)) + geom_histogram(bins=200) + coord_cartesian(xlim = c(0,700)) + ggtitle("Hours CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r}
+#histogram of hours cf children spent at the hospital. includes outliers
+plot_has_cf_total <- ggplot(time_has_cf, aes(x=diffhrs)) + geom_histogram() + ggtitle("Hours CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+#histogram of hours non cf children spent at the hospital. includes outliers.
+plot_non_cf_total <- ggplot(time_non_cf, aes(x=diffhrs)) + geom_histogram() + ggtitle("Hours Non-CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
+```
+
+```{r}
+#histogram of hours non cf children spent at the hospital. does not include outliers. hours limited to 2500 for visibility.
+plot_non_cf_lim <-ggplot(time_non_cf, aes(x=diffhrs)) + geom_histogram() + coord_cartesian(xlim = c(0,2500)) + ggtitle("Hours Non-CF Children Spent in the Hospital") +theme(plot.title = element_text(hjust = 0.5))
+```
+
+Logistic Regression
+
+```{r}
+#make a subset of meds
+med <- d %>% select(has_cf, COVIDseverity, INOTROPES, REMDESIVIR, CCP, DEXAMETHASONE, ENOXAPARIN, HEPARIN, IVIG, METHYLPREDNISOLONE, RITUXIMAB, TOCILIZUMAB, ASPIRIN,LOPINAVIR_OR_RITONAVIR)
+```
+
+```{r}
+#create groupings of classes of medication
+med <- med %>% mutate(
+  anticoagulant = case_when(
+    ENOXAPARIN == 1 | HEPARIN == 1 ~ 1,
+    ENOXAPARIN == 0 & HEPARIN == 0 ~ 0),
+  
+  anti_inflammatory = case_when(
+    DEXAMETHASONE == 1 | METHYLPREDNISOLONE == 1 | TOCILIZUMAB == 1 | ASPIRIN == 1 ~ 1,
+    DEXAMETHASONE == 0 & METHYLPREDNISOLONE == 0 & TOCILIZUMAB == 0 & ASPIRIN == 0 ~ 0),
+
+  antiviral = case_when(
+    REMDESIVIR == 1 | LOPINAVIR_OR_RITONAVIR == 1 ~ 1,
+    REMDESIVIR == 0 & LOPINAVIR_OR_RITONAVIR == 0 ~ 0),
+  
+  immuno = case_when(
+    CCP == 1 | IVIG == 1 | RITUXIMAB == 1 ~ 1,
+    CCP == 0 & IVIG == 0 & RITUXIMAB == 0 ~ 0),
+  
+  inotrope = case_when(
+    INOTROPES == 1 ~ 1,
+    INOTROPES == 0 ~ 0)
+)
+```
+
+```{r}
+#get rid of individual medications from subset
+med_full <- med %>% select(COVIDseverity, has_cf, anticoagulant, anti_inflammatory, antiviral, immuno, inotrope)
+```
+
+```{r}
+#change level 2 severity to 1. refactor into  levels.
+med_full["COVIDseverity"][med_full["COVIDseverity"] == 2] <- 1
+med_full$COVIDseverity <- factor(med_full$COVIDseverity, c(0,1))
+```
+
+```{r}
+#run glm to predict covid severity
+summary(glm(COVIDseverity ~., family = binomial(link='logit'), data = med_full))
+```
+
+```{r}
+summary(glm(COVIDseverity ~ anti_inflammatory+immuno+antiviral, family = binomial(link='logit'), data = med_full))
+```
+
+```{r}
+a=seq(1,925952,1)
+b=sample(a,740762,replace = F)
+med_full_train=med_full[b,]
+med_full_test=med_full[-b,]
+med_full_train %>% filter(has_cf == 1) %>% count()
+```
+
+```{r}
+log_fit_med_full <- glm(COVIDseverity ~ ., family = binomial(link='logit'), data = med_full_train)
+
+```
+
+```{r}
+predict_fit = log_fit_med_full %>% predict(med_full_test, type="response")
+```
+
+```{r}
+predicted_severity <- ifelse(predict_fit > 0.5, 1,0)
+```
+
+```{r}
+counter=0
+for(i in 1:185190)
+{
+  if(predicted_severity[i] != med_full_test$COVIDseverity[i])
+  {counter=counter+1}
+}
+counter
+misclassification.rate=counter/185190
+misclassification.rate
+```
+
