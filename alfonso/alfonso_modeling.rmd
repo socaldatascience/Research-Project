@@ -56,6 +56,21 @@ prop.comp <- function( x, estimate="all", conf.level=.95, transpose=FALSE ){
 ```
 
 ## Modeling Proposals
+```{r morb_df}
+
+morb_df <- d %>%
+  select(has_cf, COVIDseverity, starts_with('comorb'))
+colnames(morb_df) <- c('has_cf', 'COVIDseverity', 'bronchiectasis',
+                        'pulmonary_disease', 'asthma', 'nasal_polyps',
+                        'hemoptysis', 'pneumothorax', 'resp_failure', 
+                        'malnutrition', 'other_nutri_deficiency', 
+                        'type1_diabetes', 'type2_diabetes', 'obesity', 
+                        'liver_disease', 'other_GI_notLiver', 
+                        'essential_hypertension', 'hypertensive_heart_disease',
+                        'chronic_kidney_disease', 'nicotine_dependence', 
+                        'heart_failure', 'ischemic_heart_disease', 
+                        'lung_transplant')
+```
 
 ```{r severity changed}
 #created altered data frame of morb_df to have severity to two levels
@@ -141,15 +156,15 @@ no_diab_morb2 <- morb_grouped %>%
 ```{r logit model sub_df}
 model_morb <-
 glm(COVIDseverity~., family = binomial(link='logit'), 
-            data = no_diab_morb)
+            data = no_diab_morb2)
 
 summary(model_morb)
 ```
 ```{r}
 a=seq(1,925952,1)
 b=sample(a,740762,replace = F)
-no_diab_morb_train=no_diab_morb[b,]
-no_diab_morb_test=no_diab_morb[-b,]
+no_diab_morb_train=no_diab_morb2[b,]
+no_diab_morb_test=no_diab_morb2[-b,]
 no_diab_morb_train %>% filter(has_cf == 1) %>% count()
 ```
 
