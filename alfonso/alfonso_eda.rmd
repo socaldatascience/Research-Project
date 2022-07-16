@@ -249,34 +249,34 @@ blood back to tissues in the body.
 ```{r contingency table of treatment one across severity}
 #
 ecmo <- d %>%
-  select(COVIDseverity, ECMO) %>%
+  select(has_cf, ECMO) %>%
   table()
 ecmo
 
 
 #high flow nasal cannula
 hfnc <- d %>%
-  select(COVIDseverity, HFNC) %>%
+  select(has_cf, HFNC) %>%
   table()
 hfnc
 
 
 #nasal cannula
 nc <- d %>%
-  select(COVIDseverity, NC) %>%
+  select(has_cf, NC) %>%
   table()
 nc
 
 
 #bilevel positive airway pressure/Continuous positive airway pressure
 bipap_cpap <- d %>%
-  select(COVIDseverity, bipapCpapNonInvasive) %>%
+  select(has_cf, bipapCpapNonInvasive) %>%
   table()
 bipap_cpap
 
 
 mech_vent <- d %>%
-  select(COVIDseverity, invasiveMechVentilation) %>%
+  select(has_cf, invasiveMechVentilation) %>%
   table()
 mech_vent
 ```
