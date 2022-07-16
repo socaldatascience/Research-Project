@@ -233,3 +233,52 @@ ggplot(data = d) +
   geom_bar(mapping = aes(x = encountertype, fill = COVIDseverity), ) + 
   coord_flip()
 ```
+
+CPAP - Continuous positive airway pressure is a form of positive airway pressure 
+ventilation in which a constant level of pressure greater than atmospheric 
+pressure is continuously applied to the upper respiratory tract of a person.
+
+BiPAP - bilevel positive airway pressure. It is commonly known as “BiPap” or 
+“BPap.” It is a type of ventilator—a device that helps with breathing. 
+During normal breathing, your lungs expand when you breathe in.
+
+In extracorporeal membrane oxygenation (ECMO), blood is pumped outside of your 
+body to a heart-lung machine that removes carbon dioxide and sends oxygen-filled 
+blood back to tissues in the body.
+
+```{r contingency table of treatment one across severity}
+#
+ecmo <- d %>%
+  select(COVIDseverity, ECMO) %>%
+  table()
+ecmo
+
+
+#high flow nasal cannula
+hfnc <- d %>%
+  select(COVIDseverity, HFNC) %>%
+  table()
+hfnc
+
+
+#nasal cannula
+nc <- d %>%
+  select(COVIDseverity, NC) %>%
+  table()
+nc
+
+
+#bilevel positive airway pressure/Continuous positive airway pressure
+bipap_cpap <- d %>%
+  select(COVIDseverity, bipapCpapNonInvasive) %>%
+  table()
+bipap_cpap
+
+
+mech_vent <- d %>%
+  select(COVIDseverity, invasiveMechVentilation) %>%
+  table()
+mech_vent
+```
+NOTE: Every treatment therapy was associated with either level one severty or 
+level two severity or both.
