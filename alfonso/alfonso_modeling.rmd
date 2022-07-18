@@ -1,0 +1,212 @@
+---
+title: "Child Patients with Covid-19 and Cystic Fibrosis"
+author: "Alfonso Vieyra, Brandon Huett, Allison Cher, Brittnie Villasenor, Ernesto Collazo"
+date: '2022-06-30'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+library(scales)
+
+# Need to always load the package though
+library(epitools)
+library(rmeta)
+library(pROC)
+library(nnet)
+```
+
+```{r prop comp}
+# This is the prop.comp() function we will use
+#######
+prop.comp <- function( x, estimate="all", conf.level=.95, transpose=FALSE ){
+	if( transpose ) x <- t(x)
+	rslt <- vector( "list", length=3 )
+	names( rslt ) <- c( "riskdiff", "riskratio", "oddsratio" )
+	diff.rslt <- suppressWarnings(prop.test( x, conf.level=conf.level ))
+	rslt[[1]] <- rslt[[2]] <- rslt[[3]] <- epitab( x, method="riskratio", pvalue="chi2", conf.level=conf.level )$tab
+	colnames( rslt[[1]] )[5] <- "riskdiff"
+	rslt[[1]][,5] <- c(0,diff(rev(diff.rslt$estimate)))
+	rslt[[1]][2,6:7] <- diff.rslt$conf.int
+	colnames( rslt[[3]] )[5] <- "oddsratio"
+	rslt[[3]][,5:8] <- suppressWarnings(epitab( x, method="oddsratio", pvalue="chi2", conf.level=conf.level )$tab[,5:8])
+	if(is.null(names(dimnames(x)))){
+		for(i in 1:3){
+			colnames(rslt[[i]])[c(1,3)] <- c("Outcome=0", "Outcome=1")
+			rownames(rslt[[i]]) <- c("Group=1", "Group=2")
+			}
+	}
+	if( is.element( estimate, c("all", "oddsratio") ) ){ 
+		if(is.null(names(dimnames(x)))){
+			warning( "Estimated probabilities represent Pr[ Outcome | Group ]. For estimates of 
+			Pr[ Group | Outcome ], change the value of 'transpose'.")
+		}
+		else
+			warning( paste("Estimated probabilities represent Pr[", names(dimnames(x))[2], 
+			"|",names(dimnames(x))[1], "]. For estimates of 
+			Pr[", names(dimnames(x))[1], "|",names(dimnames(x))[2], "], change the value of 'transpose'.") )
+		}
+	if( estimate == "riskdiff" ) return(rslt[[1]])
+	else if( estimate == "riskratio" ) return(rslt[[2]])
+	else if( estimate == "oddsratio" ) return(rslt[[3]])
+	else return(rslt)
+}
+```
+
+## Modeling Proposals
+```{r morb_df}
+unique_patient_df <- 
+  d[order(d$servicedate),] %>%
+  distinct(personid, .keep_all = TRUE)
+
+morb_df <- unique_patient_df %>%
+  select(has_cf, COVIDseverity, starts_with('comorb'))
+colnames(morb_df) <- c('has_cf', 'COVIDseverity', 'bronchiectasis',
+                        'pulmonary_disease', 'asthma', 'nasal_polyps',
+                        'hemoptysis', 'pneumothorax', 'resp_failure', 
+                        'malnutrition', 'other_nutri_deficiency', 
+                        'type1_diabetes', 'type2_diabetes', 'obesity', 
+                        'liver_disease', 'other_GI_notLiver', 
+                        'essential_hypertension', 'hypertensive_heart_disease',
+                        'chronic_kidney_disease', 'nicotine_dependence', 
+                        'heart_failure', 'ischemic_heart_disease', 
+                        'lung_transplant')
+```
+
+```{r severity changed}
+#created altered data frame of morb_df to have severity to two levels
+morb_df_01 <- morb_df
+morb_df_01['COVIDseverity'][morb_df_01['COVIDseverity'] == 2] <- 1
+morb_df_01$COVIDseverity <- factor(morb_df_01$COVIDseverity, c(0,1))
+```
+
+```{r group morbids}
+morb_grouped <- morb_df_01 %>% 
+  mutate(
+    respiratory_disease = case_when(
+      bronchiectasis == 1|
+        pulmonary_disease == 1|
+        asthma == 1|
+        nasal_polyps == 1|
+        hemoptysis == 1|
+        pneumothorax == 1|
+        resp_failure == 1|
+        lung_transplant == 1~1,
+      bronchiectasis == 0&
+        pulmonary_disease == 0&
+        asthma == 0&
+        nasal_polyps == 0&
+        hemoptysis == 0&
+        pneumothorax == 0&
+        resp_failure == 0&
+        lung_transplant == 0~0),
+    
+    nutri_cond = case_when(
+      malnutrition == 1|
+        other_nutri_deficiency == 1|
+        obesity == 1~1,
+      malnutrition == 0&
+        other_nutri_deficiency == 0&
+        obesity == 0~0),
+    
+    diabetes = case_when(
+      type1_diabetes == 1|
+        type2_diabetes == 1~1,
+      type1_diabetes == 0&
+        type2_diabetes == 0~0),
+    
+    cardiac_dis = case_when(
+      heart_failure == 1|
+        hypertensive_heart_disease == 1|
+        ischemic_heart_disease == 1|
+        essential_hypertension == 1~1,
+      heart_failure == 0&
+        hypertensive_heart_disease == 0&
+        ischemic_heart_disease == 0&
+        essential_hypertension == 0~0),
+      
+      abdominal_cond = case_when(
+        liver_disease == 1|
+          other_GI_notLiver == 1|
+          chronic_kidney_disease == 1~1,
+        liver_disease == 0&
+          other_GI_notLiver == 0&
+          chronic_kidney_disease == 0~0),
+    
+    nicotine_dep = case_when(
+      nicotine_dependence == 1~1,
+      nicotine_dependence == 0~0)
+    )
+
+morb_grouped <- morb_grouped %>%
+  select(1:2, 24:29)
+```
+
+```{r glm full model}
+full_model <- glm(COVIDseverity~., family = binomial(link='logit'), 
+            data = morb_grouped)
+summary(full_model)
+```
+```{r ordinal log model}
+ord_glm <- MASS::polr(COVIDseverity~., data = morb_df, Hess=TRUE)
+```
+
+```{r sub_df of morb_grouops without diabetes}
+no_diab_morb2 <- morb_grouped %>%
+  select(-diabetes)
+```
+
+```{r logit model sub_df}
+model_morb <-
+glm(COVIDseverity~., family = binomial(link='logit'), 
+            data = no_diab_morb2)
+
+summary(model_morb)
+```
+```{r}
+a=seq(1,925952,1)
+b=sample(a,740762,replace = F)
+no_diab_morb_train=no_diab_morb2[b,]
+no_diab_morb_test=no_diab_morb2[-b,]
+no_diab_morb_train %>% filter(has_cf == 1) %>% count()
+```
+
+```{r}
+no_diab_fitted <- glm(COVIDseverity ~ ., family = binomial(link='logit'), data = no_diab_morb_train)
+```
+
+```{r}
+no_diab_predict_fit = no_diab_fitted %>% predict(no_diab_morb_test, type="response")
+```
+
+```{r}
+predicted_severity2 <- ifelse(no_diab_predict_fit > 0.5, 1,0)
+```
+
+```{r}
+counter=0
+for(i in 1:185190)
+{
+  if(predicted_severity2[i] != no_diab_morb_test$COVIDseverity[i])
+  {counter=counter+1}
+}
+counter
+misclassification.rate=counter/185190
+misclassification.rate
+```
+
+```{r grapg log}
+ggplot(no_diab_morb_test, aes(x = COVIDseverity, y = no_diab_predict_fit)) +
+  geom_boxplot(aes(fill = factor(COVIDseverity)), alpha = 1)
+```
+
+```{r roc curve}
+roc_score = roc(no_diab_morb_test$COVIDseverity, no_diab_predict_fit)
+roc_score
+
+library(ROCit)
+ROCit_obj <- rocit(score=no_diab_predict_fit,class=no_diab_morb_test$COVIDseverity)
+plot(ROCit_obj)
+```

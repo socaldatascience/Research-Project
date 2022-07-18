@@ -106,7 +106,7 @@ severity0_noCF <- morb_noCF %>%
 
 indx0 <- sapply(severity0_noCF, is.factor)
 severity0_noCF[indx0] <- lapply(severity0_noCF[indx0], 
-                           function(x) as.numeric(as.character(x)))
+                           function(x) as.numeric(as.character(x)))H <- 
 
 #Tables of severity symptoms level 1
 severity1_noCF <- morb_noCF %>%
@@ -257,9 +257,29 @@ num_morb_perCF <- prop1(num_morb_perCF, 9337)
 num_morb_perNonCF <- prop1(num_morb_perNonCF, 916615)
 ```
 
-## Modeling Proposals
+```{r unique patient df}
+unique_patient_df <- 
+  d[order(d$servicedate),] %>%
+  distinct(personid, .keep_all = TRUE)
+```
 
-summary(glm(has_cf~comorb_bronchiectasis_J47, family = binomial(link='identity'), data = d))
+```{r tenant}
+h <- d %>% 
+  group_by(d$tenant) %>%
+  filter(n()>17500)
+
+ggplot(h) +
+  geom_bar(mapping = aes(x = tenant, fill = COVIDseverity), )
+```
+
+```{r encounterType}
+ggplot(data = d) +
+  geom_bar(mapping = aes(x = encountertype, fill = COVIDseverity), ) + 
+  coord_flip()
+```
+
+
+## Modeling Proposals
 
 
 ```{r severity changed}
@@ -333,12 +353,14 @@ morb_grouped <- morb_grouped %>%
 ```
 
 ```{r glm full model}
+full_model <- glm(COVIDseverity~., family = binomial(link='logit'), 
+            data = morb_grouped)
 summary(glm(COVIDseverity~., family = binomial(link='logit'), 
             data = morb_grouped))
 ```
 
 ```{r sub_df of morb_grouops without diabetes}
-no_diab_morb <- morb_grouped %>%
+no_diab_morb2 <- morb_grouped %>%
   select(-diabetes)
 ```
 
@@ -381,24 +403,17 @@ misclassification.rate=counter/185190
 misclassification.rate
 ```
 
-
 ```{r grapg log}
-ggplot(no_diab_morb_test, aes(x = respiratory_disease, y = no_diab_predict_fit)) +
-  geom_boxplot(aes(fill = factor(has_cf)), alpha = 1)
+ggplot(no_diab_morb_test, aes(x = COVIDseverity, y = no_diab_predict_fit)) +
+  geom_boxplot(aes(fill = factor(COVIDseverity)), alpha = 1)
 ```
 
 ```{r roc curve}
-roc_score = roc(no_diab_morb_test$COVIDseverity, predicted_severity2)
-```
+roc_score = roc(no_diab_morb_test$COVIDseverity, no_diab_predict_fit)
+roc_score
 
-```{r }
-plot(roc_score, main="ROC curve -- Logistic Regression ")
-```
-
-```{r 2nd roc}
 library(ROCit)
-## Warning: package 'ROCit' was built under R version 3.5.2
-ROCit_obj <- rocit(score=predicted_severity2,class=no_diab_morb_test$COVIDseverity)
+ROCit_obj <- rocit(score=no_diab_predict_fit,class=no_diab_morb_test$COVIDseverity)
 plot(ROCit_obj)
 ```
 

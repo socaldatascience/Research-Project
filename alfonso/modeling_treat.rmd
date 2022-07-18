@@ -1,0 +1,124 @@
+---
+title: "Child Patients with Covid-19 and Cystic Fibrosis"
+author: "Alfonso Vieyra, Brandon Huett, Allison Cher, Brittnie Villasenor, Ernesto Collazo"
+date: '2022-06-30'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+library(scales)
+
+# Need to always load the package though
+library(epitools)
+library(rmeta)
+library(pROC)
+library(nnet)
+```
+
+We first create a sub data frame consisting only of patients who reported 
+their first visit and columns consisting of the treatments, has_cf and 
+COVIDseverity.
+
+```{r DataFrame}
+unique_patient_df <- 
+  d[order(d$servicedate),] %>%
+  distinct(personid, .keep_all = TRUE)
+
+treatments_df <- unique_patient_df %>%
+  select(has_cf, COVIDseverity, 37:41)
+
+```
+
+## contingency tables of treatments as X and has_cf as Y
+
+```{r ECMO}
+ecmo <- unique_patient_df %>%
+  select(has_cf, ECMO) %>%
+  table()
+summary(ecmo)
+chisq.test(ecmo)
+```
+
+Here we observe whether or not having cystic fibrosis is dependent on having 
+ECMO as a treatment. The p value = 1 and thus we can conclude that patients on 
+ECMO is not indicative of whether or not they have cystic fibrosis.
+
+```{r HFNC}
+#high flow nasal cannula
+hfnc <- unique_patient_df %>%
+  select(has_cf, HFNC) %>%
+  table()
+summary(hfnc)
+chisq.test(hfnc)
+```
+
+Here we observe whether or not having cystic fibrosis is dependent on having 
+High Nasal Flow Canula as a treatment. The p value is approximately zero and 
+thus we can conclude that patients on HFNC is significant in determining 
+whether or not a patient has cystic fibrosis.
+
+```{r NC}
+#nasal cannula
+nc <- unique_patient_df %>%
+  select(has_cf, NC) %>%
+  table()
+summary(nc)
+chisq.test(nc)
+```
+
+Here we observe whether or not having cystic fibrosis is dependent on having 
+Nasal Canula as a treatment. The p value is approximately zero and thus we can 
+conclude that patients on NC is significant in determining whether or not a 
+patient has cystic fibrosis.
+
+```{r BiPap and CPap}
+#bilevel positive airway pressure/Continuous positive airway pressure
+bipap_cpap <- unique_patient_df %>%
+  select(has_cf, bipapCpapNonInvasive) %>%
+  table()
+summary(bipap_cpap)
+chisq.test(bipap_cpap)
+```
+
+Here we observe whether or not having cystic fibrosis is dependent on having 
+bilevel positive airway pressure/Continuous positive airway pressure as a 
+treatment. The p value = 0.016 and thus we can conclude that patients on 
+bipap_cpap is significant in determining whether or not a patient has cystic 
+fibrosis.
+
+```{r Invasive Mech}
+mech_vent <- unique_patient_df %>%
+  select(has_cf, invasiveMechVentilation) %>%
+  table()
+summary(mech_vent)
+chisq.test(mech_vent)
+```
+
+Here we observe whether or not having cystic fibrosis is dependent on having 
+invasive mechanical procedure as a treatment. The p value = 0.006 and thus we 
+can conclude that patients on mech_vent is significant in determining whether or 
+not a patient has cystic fibrosis.
+
+## Ordinal multinomial logistic Model of treatments
+
+```{r model}
+treat_model <- MASS::polr(COVIDseverity~has_cf + NC + HFNC + has_cf*HFNC + NC*has_cf,
+                          data = treatments_df, Hess = TRUE)
+summary(treat_model)
+```
+
+P-values are not shown in the summary table. Therefore, will create a a table to 
+highlight p values and coefficients together 
+
+```{r grouped coefficients}
+ctable1 <- coef(summary(treat_model))
+
+## calculate and store p values
+p <- round(pnorm(abs(ctable1[, "t value"]), lower.tail = FALSE) * 2, 3)
+
+## combined table
+(ctable1 <- cbind(ctable1, "p value" = p))
+```

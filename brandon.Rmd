@@ -347,10 +347,23 @@ summary(no_diab_fitted)
 pander::pander(no_diab_fitted)
 ```
 
-
 ```{r}
-b0 <- no_diab_fitted$coef[1]
-X1 <- no_diab_fitted$coef[2]
-
+#groups ages according to NICHD Pediatric Terminology
+ages_grp_df <- d %>% 
+  mutate(
+    infancy = case_when(
+    age_at_encounter <= 1~1),
+    toddler = case_when(
+      (age_at_encounter > 1 & age_at_encounter <= 2)~2),
+    early_childhood = case_when(
+      (age_at_encounter > 1 & age_at_encounter <= 5)~3),
+    middle_childhood = case_when(
+      (age_at_encounter > 5 & age_at_encounter <= 11)~4),
+    early_adolescence = case_when(
+      (age_at_encounter > 11 & age_at_encounter <= 18)~5),
+    late_adolescence = case_when(
+      (age_at_encounter > 18 & age_at_encounter <= 21)~6),
+    adult = case_when(
+      (age_at_encounter > 21 & age_at_encounter <= 25)~7)
+    )
 ```
-

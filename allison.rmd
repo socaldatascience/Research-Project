@@ -206,3 +206,38 @@ misclassification.rate=counter/185190
 misclassification.rate
 ```
 
+
+Filtering for unique personid encounters
+```{r}
+#create subset
+duration1 <- d %>% select(servicedate, dischargedate, personid)
+```
+
+```{r}
+#filter for rows that have more than one personid
+duration2 <- duration1 %>% group_by(personid) %>% filter(n()>1)
+
+#get rid of empty values in dischargedate
+duration2 <- duration2[!(is.na(duration2$dischargedate) | duration2$dischargedate==""), ]
+```
+
+```{r}
+#put duration 2 in ascending order and rename to duration 3
+duration3 <- duration2[order(duration2$servicedate,decreasing=FALSE),]
+
+#get rid of duplicates
+duration3 <- duration3[!duplicated(duration3$personid),]
+```
+
+```{r}
+#extract only the personids that appear once. 
+
+duration4 <- duration1
+duration4 <- duration4 %>% group_by(personid) %>% filter(n()==1)
+```
+
+```{r}
+#join duration4 (only unique personid) and duration3 (earliest duplicated date)
+duration5 <- rbind(duration4, duration3)
+```
+
