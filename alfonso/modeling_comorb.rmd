@@ -1,1 +1,158 @@
+---
+title: "Child Patients with Covid-19 and Cystic Fibrosis"
+author: "Alfonso Vieyra, Brandon Huett, Allison Cher, Brittnie Villasenor, Ernesto Collazo"
+date: '2022-06-30'
+output: html_document
+---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggplot2)
+library(scales)
+
+# Need to always load the package though
+library(epitools)
+library(rmeta)
+library(pROC)
+library(nnet)
+```
+
+## Ordinal multinomial logistic Model with non grouped moorbidities 
+
+Will first create a sub data frame consisting only of patients who reported 
+their first visit and columns consisting of the morbidities, has_cf and 
+COVIDseverity.
+
+```{r DataFrame}
+unique_patient_df <- 
+  d[order(d$servicedate),] %>%
+  distinct(personid, .keep_all = TRUE)
+
+morb_df <- unique_patient_df %>%
+  select(has_cf, COVIDseverity, starts_with('comorb'))
+colnames(morb_df) <- c('has_cf', 'COVIDseverity', 'bronchiectasis',
+                        'pulmonary_disease', 'asthma', 'nasal_polyps',
+                        'hemoptysis', 'pneumothorax', 'resp_failure', 
+                        'malnutrition', 'other_nutri_deficiency', 
+                        'type1_diabetes', 'type2_diabetes', 'obesity', 
+                        'liver_disease', 'other_GI_notLiver', 
+                        'essential_hypertension', 'hypertensive_heart_disease',
+                        'chronic_kidney_disease', 'nicotine_dependence', 
+                        'heart_failure', 'ischemic_heart_disease', 
+                        'lung_transplant')
+```
+
+Implementation of the model here:
+
+```{r full model}
+full_model <- MASS::polr(COVIDseverity~., data = morb_df, Hess = TRUE)
+full_sum <- summary(full_model)
+```
+
+P-values are not shown in the summary table. Therefore, will create a a table to 
+highlight p values and coefficients together 
+
+```{r non group coefficients}
+ctable1 <- coef(summary(full_model))
+
+## calculate and store p values
+p <- round(pnorm(abs(ctable1[, "t value"]), lower.tail = FALSE) * 2, 3)
+
+## combined table
+(ctable1 <- cbind(ctable, "p value" = p))
+```
+We can see that the following predictors have no significance in predicting lvls
+of severity: has_cf, pulmonary disease, type 2 diabetes, hypertensive heart 
+disease and ishemic heart disease. 
+
+The fact that has_cf has a small p value, tells us that there is no 
+discernible way to determine the odds of a patient having levels 0, 1 or 2 covid
+severity between non-cf and cf patients. 
+
+## Ordinal multinomial logistic Model with grouped moorbidities 
+
+using the morb_df object and instantiating a new object with comorbidities 
+grouped together.
+
+```{r grouping morbidities}
+morb_grouped <- morb_df %>% 
+  mutate(
+    respiratory_disease = case_when(
+      bronchiectasis == 1|
+        pulmonary_disease == 1|
+        asthma == 1|
+        nasal_polyps == 1|
+        hemoptysis == 1|
+        pneumothorax == 1|
+        resp_failure == 1|
+        lung_transplant == 1~1,
+      bronchiectasis == 0&
+        pulmonary_disease == 0&
+        asthma == 0&
+        nasal_polyps == 0&
+        hemoptysis == 0&
+        pneumothorax == 0&
+        resp_failure == 0&
+        lung_transplant == 0~0),
+    
+    nutri_cond = case_when(
+      malnutrition == 1|
+        other_nutri_deficiency == 1|
+        obesity == 1~1,
+      malnutrition == 0&
+        other_nutri_deficiency == 0&
+        obesity == 0~0),
+    
+    diabetes = case_when(
+      type1_diabetes == 1|
+        type2_diabetes == 1~1,
+      type1_diabetes == 0&
+        type2_diabetes == 0~0),
+    
+    cardiac_dis = case_when(
+      heart_failure == 1|
+        hypertensive_heart_disease == 1|
+        ischemic_heart_disease == 1|
+        essential_hypertension == 1~1,
+      heart_failure == 0&
+        hypertensive_heart_disease == 0&
+        ischemic_heart_disease == 0&
+        essential_hypertension == 0~0),
+      
+      abdominal_cond = case_when(
+        liver_disease == 1|
+          other_GI_notLiver == 1|
+          chronic_kidney_disease == 1~1,
+        liver_disease == 0&
+          other_GI_notLiver == 0&
+          chronic_kidney_disease == 0~0),
+    
+    nicotine_dep = case_when(
+      nicotine_dependence == 1~1,
+      nicotine_dependence == 0~0)
+    )
+
+morb_grouped <- morb_grouped %>%
+  select(1:2, 24:29)
+```
+
+Employing model here:
+
+```{r grouped model}
+group_model <- MASS::polr(COVIDseverity~., data = morb_grouped, Hess = TRUE)
+summary(group_model)
+```
+
+```{r grouped coefficients}
+ctable2 <- coef(summary(group_model))
+
+## calculate and store p values
+p <- round(pnorm(abs(ctable2[, "t value"]), lower.tail = FALSE) * 2, 3)
+
+## combined table
+(ctable2 <- cbind(ctable2, "p value" = p))
+```
+
+We can see that testing for groups we come up with p-values smaller across the 
+board with the exception of having cf or not. 
