@@ -156,3 +156,11 @@ p <- round(pnorm(abs(ctable2[, "t value"]), lower.tail = FALSE) * 2, 3)
 
 We can see that testing for groups we come up with p-values smaller across the 
 board with the exception of having cf or not. 
+
+## Conclusion
+
+We can conclude that having cystic fibrosis under the presence of comorbidities 
+as additional predictors alone, does not present any increased risk at 
+contracting severe symtpoms versus patients who do not have cystic fibrosis. In
+other words, the odds of contracting severe symptoms is independent of having
+cystic fribosis. May look at possible interactions to determine any difference. 
