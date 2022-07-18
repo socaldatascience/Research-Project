@@ -222,7 +222,7 @@ unique_patient_df <-
 ```{r tenant}
 h <- d %>% 
   group_by(d$tenant) %>%
-  filter(n()>0)
+  filter(n()>5000) 
 
 ggplot(h) +
   geom_bar(mapping = aes(x = tenant, fill = COVIDseverity), )
