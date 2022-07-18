@@ -57,8 +57,11 @@ prop.comp <- function( x, estimate="all", conf.level=.95, transpose=FALSE ){
 
 ## Modeling Proposals
 ```{r morb_df}
+unique_patient_df <- 
+  d[order(d$servicedate),] %>%
+  distinct(personid, .keep_all = TRUE)
 
-morb_df <- d %>%
+morb_df <- unique_patient_df %>%
   select(has_cf, COVIDseverity, starts_with('comorb'))
 colnames(morb_df) <- c('has_cf', 'COVIDseverity', 'bronchiectasis',
                         'pulmonary_disease', 'asthma', 'nasal_polyps',
@@ -144,8 +147,10 @@ morb_grouped <- morb_grouped %>%
 ```{r glm full model}
 full_model <- glm(COVIDseverity~., family = binomial(link='logit'), 
             data = morb_grouped)
-summary(glm(COVIDseverity~., family = binomial(link='logit'), 
-            data = morb_grouped))
+summary(full_model)
+```
+```{r ordinal log model}
+ord_glm <- MASS::polr(COVIDseverity~., data = morb_df, Hess=TRUE)
 ```
 
 ```{r sub_df of morb_grouops without diabetes}

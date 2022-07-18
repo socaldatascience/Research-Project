@@ -62,7 +62,7 @@ severity0_noCF <- morb_noCF %>%
 
 indx0 <- sapply(severity0_noCF, is.factor)
 severity0_noCF[indx0] <- lapply(severity0_noCF[indx0], 
-                           function(x) as.numeric(as.character(x)))H <- 
+                           function(x) as.numeric(as.character(x)))
 
 #Tables of severity symptoms level 1
 severity1_noCF <- morb_noCF %>%
@@ -209,8 +209,8 @@ num_morb_perCF <- table(rowSums(has_CF))
 num_morb_perNonCF <- table(rowSums(has_noCF))
 
 #Assign proportions for the number of comorbidities per patient
-num_morb_perCF <- prop1(num_morb_perCF, 9337)
-num_morb_perNonCF <- prop1(num_morb_perNonCF, 916615)
+#num_morb_perCF <- prop1(num_morb_perCF, 9337)
+#num_morb_perNonCF <- prop1(num_morb_perNonCF, 916615)
 ```
 
 ```{r unique patient df}
@@ -222,7 +222,7 @@ unique_patient_df <-
 ```{r tenant}
 h <- d %>% 
   group_by(d$tenant) %>%
-  filter(n()>17500)
+  filter(n()>0)
 
 ggplot(h) +
   geom_bar(mapping = aes(x = tenant, fill = COVIDseverity), )
@@ -247,36 +247,36 @@ body to a heart-lung machine that removes carbon dioxide and sends oxygen-filled
 blood back to tissues in the body.
 
 ```{r contingency table of treatment one across severity}
-#
-ecmo <- d %>%
-  select(has_cf, ECMO) %>%
+#extracorporeal membrane oxygenation
+ecmo <- unique_patient_df %>%
+  select(COVIDseverity, ECMO) %>%
   table()
 ecmo
 
 
 #high flow nasal cannula
-hfnc <- d %>%
-  select(has_cf, HFNC) %>%
+hfnc <- unique_patient_df %>%
+  select(COVIDseverity, HFNC) %>%
   table()
 hfnc
 
 
 #nasal cannula
-nc <- d %>%
-  select(has_cf, NC) %>%
+nc <- unique_patient_df %>%
+  select(COVIDseverity, NC) %>%
   table()
 nc
 
 
 #bilevel positive airway pressure/Continuous positive airway pressure
-bipap_cpap <- d %>%
-  select(has_cf, bipapCpapNonInvasive) %>%
+bipap_cpap <- unique_patient_df %>%
+  select(COVIDseverity, bipapCpapNonInvasive) %>%
   table()
 bipap_cpap
 
 
-mech_vent <- d %>%
-  select(has_cf, invasiveMechVentilation) %>%
+mech_vent <- unique_patient_df %>%
+  select(COVIDseverity, invasiveMechVentilation) %>%
   table()
 mech_vent
 ```
