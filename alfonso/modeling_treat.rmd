@@ -105,7 +105,7 @@ not a patient has cystic fibrosis.
 ## Ordinal multinomial logistic Model of treatments
 
 ```{r model}
-treat_model <- MASS::polr(COVIDseverity~has_cf + NC + HFNC + has_cf*HFNC + NC*has_cf,
+treat_model <- MASS::polr(COVIDseverity~has_cf + NC + HFNC,
                           data = treatments_df, Hess = TRUE)
 summary(treat_model)
 ```
@@ -122,3 +122,5 @@ p <- round(pnorm(abs(ctable1[, "t value"]), lower.tail = FALSE) * 2, 3)
 ## combined table
 (ctable1 <- cbind(ctable1, "p value" = p))
 ```
+
+

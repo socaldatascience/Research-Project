@@ -209,8 +209,8 @@ num_morb_perCF <- table(rowSums(has_CF))
 num_morb_perNonCF <- table(rowSums(has_noCF))
 
 #Assign proportions for the number of comorbidities per patient
-#num_morb_perCF <- prop1(num_morb_perCF, 9337)
-#num_morb_perNonCF <- prop1(num_morb_perNonCF, 916615)
+num_morb_perCF <- prop1(num_morb_perCF, 9337)
+num_morb_perNonCF <- prop1(num_morb_perNonCF, 916615)
 ```
 
 ```{r unique patient df}

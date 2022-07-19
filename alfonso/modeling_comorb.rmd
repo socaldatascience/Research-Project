@@ -60,7 +60,7 @@ ctable1 <- coef(summary(full_model))
 p <- round(pnorm(abs(ctable1[, "t value"]), lower.tail = FALSE) * 2, 3)
 
 ## combined table
-(ctable1 <- cbind(ctable, "p value" = p))
+(ctable1 <- cbind(ctable1, "p value" = p))
 ```
 We can see that the following predictors have no significance in predicting lvls
 of severity: has_cf, pulmonary disease, type 2 diabetes, hypertensive heart 
@@ -157,6 +157,59 @@ p <- round(pnorm(abs(ctable2[, "t value"]), lower.tail = FALSE) * 2, 3)
 
 We can see that testing for groups we come up with p-values smaller across the 
 board with the exception of having cf or not. 
+
+## Modeling for the number of Comorbidities Per Patient 
+
+Creating the data frame that consists of the number of morbidities per patient
+(row) with has_cf and COVIDseverity.
+
+```{r morb_perP df}
+morbs <- morb_df %>%
+  select(3:23)
+
+morbs[] <- lapply(morbs, function(x) as.numeric(as.character(x)))
+
+morbs <- morbs %>%
+     mutate(total_morbs = rowSums(.),
+            has_cf = morb_df$has_cf,
+  COVIDseverity = morb_df$COVIDseverity) %>%
+  select(has_cf, COVIDseverity, total_morbs)
+```
+
+Implementation of the model is here: 
+
+COVIDseverity = B0 + B1(Has_cf) + B2(total_comorbidities)
+
+```{r model}
+perP_model <- MASS::polr(COVIDseverity~has_cf + total_morbs, 
+                         data = morbs, Hess = TRUE)
+summary(perP_model)
+```
+
+Creating table to calculate p-values and show all estimates.
+
+```{r coefficients3}
+ctable3 <- coef(summary(perP_model))
+
+## calculate and store p values
+p <- round(pnorm(abs(ctable3[, "t value"]), lower.tail = FALSE) * 2, 3)
+
+## combined table
+(ctable3 <- cbind(ctable3, "p value" = p))
+```
+
+We can see that the p value for has_cf is high. This suggests further that 
+having an illness like cystic fibrosis has no increased likelihood or lack
+thereof of ones covid severity symptoms. However, interestingly enough, we can
+see that there is significance in the number of morbidities per patient and 
+there increased likelihood at contracting severe symptoms. This is odd since 
+patients who have cystic fibrosis have a greater proportion of its sample with 
+pre existing conditions. 
+
+I did conduct a model including an interaction term between having cystic 
+fibrosis and the number of comorbidities present in a patient. However, both
+have_cf and the interaction term yielded large p-values and again restating its 
+lack of significance in the presence of prexisting conditions. 
 
 ## Conclusion
 
