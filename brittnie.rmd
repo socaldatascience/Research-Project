@@ -531,6 +531,7 @@ med_log <- glm(COVIDseverity ~., family = binomial(link = 'logit'), data = med_g
 summary(med_log)
 pander::pander(med_log)
 ```
+
 ```{r}
 confint(med_log)
 ```
@@ -566,6 +567,9 @@ glm(COVIDseverity ~ anticoagulant + antiviral + anti_inflammatory + immuno, fami
 ```{r}
 # Summary for test 5 of glm model
 summary(glm(COVIDseverity ~ anticoagulant + antiviral + anti_inflammatory + immuno, family = binomial(link = 'logit'), data = med_group))
+```
+```{r}
+MASS::polr(COVIDseverity ~ has_cf + anticoagulant + antiviral + anti_inflammatory + inotrope + immuno, data = med_group, Hess = T)
 ```
 
 
