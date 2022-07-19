@@ -123,4 +123,26 @@ p <- round(pnorm(abs(ctable1[, "t value"]), lower.tail = FALSE) * 2, 3)
 (ctable1 <- cbind(ctable1, "p value" = p))
 ```
 
+```{r}
+test <- unique_patient_df %>%
+  select(COVIDseverity, has_cf) %>%
+  table()
+summary(test)
+```
+
+```{r covid ~ cf}
+model1 <- MASS::polr(COVIDseverity~has_cf, data = unique_patient_df, Hess = TRUE)
+summary(model1)
+```
+
+```{r coef}
+ctable2 <- coef(summary(model1))
+
+## calculate and store p values
+p <- round(pnorm(abs(ctable2[, "t value"]), lower.tail = FALSE) * 2, 3)
+
+## combined table
+(ctable2 <- cbind(ctable2, "p value" = p))
+```
+```
 
